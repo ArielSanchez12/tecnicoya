@@ -190,6 +190,318 @@ app.use('/api/fidelizacion', fidelizacionRutas);
 app.use('/api/membresias', membresiasRutas);
 app.use('/api/mensajes', mensajesRutas);
 
+// ===== RUTAS DE VERIFICACIÓN WEB (para enlaces de correo) =====
+
+// Importar modelo de Usuario para verificación
+const Usuario = require('./models/Usuario');
+
+// Ruta para confirmar cuenta desde el enlace del correo
+app.get('/confirmar-cuenta/:token', async (req, res) => {
+  const { token } = req.params;
+  
+  try {
+    // Buscar usuario con ese token de verificación
+    const usuario = await Usuario.findOne({
+      tokenVerificacion: token,
+      expiracionTokenVerificacion: { $gt: new Date() }
+    });
+
+    if (!usuario) {
+      return res.send(generarPaginaHTML(
+        'Enlace Inválido',
+        '❌',
+        'El enlace de confirmación es inválido o ha expirado.',
+        'Por favor solicita un nuevo enlace de verificación desde la aplicación.',
+        'error'
+      ));
+    }
+
+    // Activar cuenta
+    usuario.emailVerificado = true;
+    usuario.tokenVerificacion = undefined;
+    usuario.expiracionTokenVerificacion = undefined;
+    await usuario.save();
+
+    res.send(generarPaginaHTML(
+      '¡Cuenta Verificada!',
+      '✅',
+      `¡Felicitaciones ${usuario.perfil?.nombre || 'Usuario'}!`,
+      'Tu cuenta ha sido verificada exitosamente. Ya puedes iniciar sesión en la aplicación TécnicoYa.',
+      'success'
+    ));
+
+  } catch (error) {
+    console.error('Error verificando cuenta:', error);
+    res.send(generarPaginaHTML(
+      'Error',
+      '⚠️',
+      'Ocurrió un error al verificar tu cuenta.',
+      'Por favor intenta nuevamente o contacta soporte.',
+      'error'
+    ));
+  }
+});
+
+// Ruta para restablecer contraseña desde el enlace del correo
+app.get('/restablecer-contrasena/:token', async (req, res) => {
+  const { token } = req.params;
+  
+  try {
+    // Verificar que el token sea válido
+    const usuario = await Usuario.findOne({
+      tokenRecuperacion: token,
+      expiracionTokenRecuperacion: { $gt: new Date() }
+    });
+
+    if (!usuario) {
+      return res.send(generarPaginaHTML(
+        'Enlace Inválido',
+        '❌',
+        'El enlace de recuperación es inválido o ha expirado.',
+        'Por favor solicita un nuevo enlace desde la aplicación.',
+        'error'
+      ));
+    }
+
+    // Mostrar formulario para nueva contraseña
+    res.send(generarFormularioContrasena(token));
+
+  } catch (error) {
+    console.error('Error en restablecimiento:', error);
+    res.send(generarPaginaHTML(
+      'Error',
+      '⚠️',
+      'Ocurrió un error.',
+      'Por favor intenta nuevamente.',
+      'error'
+    ));
+  }
+});
+
+// Procesar nueva contraseña
+app.post('/restablecer-contrasena/:token', express.urlencoded({ extended: true }), async (req, res) => {
+  const { token } = req.params;
+  const { contrasena, confirmarContrasena } = req.body;
+
+  try {
+    if (!contrasena || contrasena.length < 6) {
+      return res.send(generarPaginaHTML(
+        'Error',
+        '❌',
+        'Contraseña inválida',
+        'La contraseña debe tener al menos 6 caracteres.',
+        'error'
+      ));
+    }
+
+    if (contrasena !== confirmarContrasena) {
+      return res.send(generarPaginaHTML(
+        'Error',
+        '❌',
+        'Las contraseñas no coinciden',
+        'Por favor intenta nuevamente.',
+        'error'
+      ));
+    }
+
+    const usuario = await Usuario.findOne({
+      tokenRecuperacion: token,
+      expiracionTokenRecuperacion: { $gt: new Date() }
+    });
+
+    if (!usuario) {
+      return res.send(generarPaginaHTML(
+        'Enlace Inválido',
+        '❌',
+        'El enlace ha expirado.',
+        'Por favor solicita un nuevo enlace.',
+        'error'
+      ));
+    }
+
+    // Actualizar contraseña
+    usuario.contrasena = contrasena;
+    usuario.tokenRecuperacion = undefined;
+    usuario.expiracionTokenRecuperacion = undefined;
+    await usuario.save();
+
+    res.send(generarPaginaHTML(
+      '¡Contraseña Actualizada!',
+      '✅',
+      'Tu contraseña ha sido cambiada exitosamente.',
+      'Ya puedes iniciar sesión con tu nueva contraseña en la aplicación TécnicoYa.',
+      'success'
+    ));
+
+  } catch (error) {
+    console.error('Error actualizando contraseña:', error);
+    res.send(generarPaginaHTML(
+      'Error',
+      '⚠️',
+      'Ocurrió un error al actualizar tu contraseña.',
+      'Por favor intenta nuevamente.',
+      'error'
+    ));
+  }
+});
+
+// Función para generar página HTML de resultado
+function generarPaginaHTML(titulo, icono, mensaje, submensaje, tipo) {
+  const colorFondo = tipo === 'success' ? '#10b981' : '#ef4444';
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${titulo} - TécnicoYa</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+        .card {
+          background: white;
+          border-radius: 20px;
+          padding: 40px;
+          max-width: 400px;
+          width: 100%;
+          text-align: center;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .icon {
+          font-size: 80px;
+          margin-bottom: 20px;
+        }
+        .titulo {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 10px;
+        }
+        .mensaje {
+          font-size: 18px;
+          color: #4b5563;
+          margin-bottom: 10px;
+        }
+        .submensaje {
+          font-size: 14px;
+          color: #6b7280;
+          line-height: 1.5;
+        }
+        .boton {
+          display: inline-block;
+          margin-top: 30px;
+          padding: 14px 40px;
+          background: linear-gradient(135deg, #3880ff 0%, #5a9cff 100%);
+          color: white;
+          text-decoration: none;
+          border-radius: 30px;
+          font-weight: 600;
+          font-size: 16px;
+        }
+        .logo { margin-bottom: 30px; font-size: 28px; font-weight: bold; color: #3880ff; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="logo">🔧 TécnicoYa</div>
+        <div class="icon">${icono}</div>
+        <h1 class="titulo">${titulo}</h1>
+        <p class="mensaje">${mensaje}</p>
+        <p class="submensaje">${submensaje}</p>
+        <a href="tecnicoya://app/login" class="boton">Abrir App</a>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+// Función para generar formulario de nueva contraseña
+function generarFormularioContrasena(token) {
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Nueva Contraseña - TécnicoYa</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+        .card {
+          background: white;
+          border-radius: 20px;
+          padding: 40px;
+          max-width: 400px;
+          width: 100%;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .logo { text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; color: #3880ff; }
+        .titulo { font-size: 22px; font-weight: 700; color: #1f2937; margin-bottom: 10px; text-align: center; }
+        .subtitulo { font-size: 14px; color: #6b7280; margin-bottom: 30px; text-align: center; }
+        .campo { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+        input {
+          width: 100%;
+          padding: 14px 16px;
+          border: 2px solid #e5e7eb;
+          border-radius: 10px;
+          font-size: 16px;
+          transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: #3880ff; }
+        .boton {
+          width: 100%;
+          padding: 16px;
+          background: linear-gradient(135deg, #3880ff 0%, #5a9cff 100%);
+          color: white;
+          border: none;
+          border-radius: 30px;
+          font-weight: 600;
+          font-size: 16px;
+          cursor: pointer;
+          margin-top: 10px;
+        }
+        .boton:hover { opacity: 0.9; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="logo">🔧 TécnicoYa</div>
+        <h1 class="titulo">Nueva Contraseña</h1>
+        <p class="subtitulo">Ingresa tu nueva contraseña</p>
+        <form method="POST" action="/restablecer-contrasena/${token}">
+          <div class="campo">
+            <label for="contrasena">Nueva contraseña</label>
+            <input type="password" id="contrasena" name="contrasena" required minlength="6" placeholder="Mínimo 6 caracteres">
+          </div>
+          <div class="campo">
+            <label for="confirmarContrasena">Confirmar contraseña</label>
+            <input type="password" id="confirmarContrasena" name="confirmarContrasena" required minlength="6" placeholder="Repite tu contraseña">
+          </div>
+          <button type="submit" class="boton">Cambiar Contraseña</button>
+        </form>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 // ===== MANEJO DE ERRORES =====
 
 // Manejo de errores de Multer
