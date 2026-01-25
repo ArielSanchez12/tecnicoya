@@ -15,7 +15,9 @@ const {
   verificarToken: verificarTokenControlador,
   solicitarRecuperacion,
   restablecerContrasena,
-  verificarTokenRecuperacion
+  verificarTokenRecuperacion,
+  verificarCuenta,
+  reenviarVerificacion
 } = require('../controllers/authControlador');
 
 const { verificarToken } = require('../middleware/autenticacion');
@@ -91,6 +93,20 @@ router.post(
  * @access  Público
  */
 router.post('/login', validacionesLogin, login);
+
+/**
+ * @route   GET /api/auth/verificar-cuenta/:token
+ * @desc    Verificar cuenta con token enviado por email
+ * @access  Público
+ */
+router.get('/verificar-cuenta/:token', verificarCuenta);
+
+/**
+ * @route   POST /api/auth/reenviar-verificacion
+ * @desc    Reenviar correo de verificación
+ * @access  Público
+ */
+router.post('/reenviar-verificacion', reenviarVerificacion);
 
 /**
  * @route   GET /api/auth/perfil

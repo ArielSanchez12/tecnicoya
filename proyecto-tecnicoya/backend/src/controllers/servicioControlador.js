@@ -76,7 +76,7 @@ const crearServicio = async (req, res) => {
       rol: 'tecnico',
       activo: true,
       'datosTecnico.especialidades': tipo,
-      'perfil.direccion.coordenadas': {
+      'datosTecnico.ubicacionBase.coordenadas': {
         $near: {
           $geometry: {
             type: 'Point',
@@ -159,7 +159,7 @@ const solicitarTecnicoInmediato = async (req, res) => {
       activo: true,
       'datosTecnico.especialidades': tipo,
       'datosTecnico.disponibleAhora': true,
-      'perfil.direccion.coordenadas': {
+      'datosTecnico.ubicacionBase.coordenadas': {
         $near: {
           $geometry: {
             type: 'Point',

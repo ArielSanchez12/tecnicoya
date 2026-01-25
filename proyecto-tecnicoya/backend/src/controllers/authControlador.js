@@ -44,11 +44,18 @@ const registrar = async (req, res) => {
       });
     }
 
+    // Generar token de verificación
+    const tokenVerificacion = crypto.randomBytes(32).toString('hex');
+    const hashToken = crypto.createHash('sha256').update(tokenVerificacion).digest('hex');
+
     // Preparar datos del usuario
     const datosUsuario = {
       email: email.toLowerCase(),
       contrasena,
       rol,
+      emailVerificado: false,
+      tokenVerificacion: hashToken,
+      expiracionTokenVerificacion: Date.now() + 24 * 3600000, // 24 horas
       perfil: {
         nombre: perfil.nombre,
         apellido: perfil.apellido,
@@ -82,22 +89,33 @@ const registrar = async (req, res) => {
       }));
     }
 
-    // Crear usuario
+    // Crear usuario (inactivo hasta verificar email)
     const nuevoUsuario = await Usuario.create(datosUsuario);
 
-    // Generar token
-    const token = generarToken(nuevoUsuario);
+    // Enviar correo de verificación
+    try {
+      await enviarCorreoRegistro(
+        nuevoUsuario.email,
+        nuevoUsuario.perfil.nombre,
+        tokenVerificacion
+      );
+      console.log(`✉️ Correo de verificación enviado a: ${nuevoUsuario.email}`);
+    } catch (emailError) {
+      console.error('Error al enviar correo de verificación:', emailError);
+      // Continuamos aunque falle el correo, el usuario puede solicitar reenvío
+    }
 
-    // Responder sin la contraseña
+    // Responder sin la contraseña ni tokens
     const usuarioRespuesta = nuevoUsuario.toObject();
     delete usuarioRespuesta.contrasena;
+    delete usuarioRespuesta.tokenVerificacion;
 
     res.status(201).json({
       exito: true,
-      mensaje: `¡Bienvenido a TécnicoYa, ${nuevoUsuario.perfil.nombre}!`,
+      mensaje: `¡Registro exitoso! Hemos enviado un correo de verificación a ${nuevoUsuario.email}. Por favor verifica tu cuenta para continuar.`,
       datos: {
-        usuario: usuarioRespuesta,
-        token
+        email: nuevoUsuario.email,
+        requiereVerificacion: true
       }
     });
 
@@ -107,6 +125,119 @@ const registrar = async (req, res) => {
       exito: false,
       mensaje: 'Error al registrar usuario',
       error: error.message
+    });
+  }
+};
+
+/**
+ * Verificar cuenta con token enviado por email
+ * GET /api/auth/verificar-cuenta/:token
+ */
+const verificarCuenta = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Hashear el token recibido para comparar
+    const hashToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Buscar usuario con token válido y no expirado
+    const usuario = await Usuario.findOne({
+      tokenVerificacion: hashToken,
+      expiracionTokenVerificacion: { $gt: Date.now() }
+    });
+
+    if (!usuario) {
+      return res.status(400).json({
+        exito: false,
+        mensaje: 'El enlace de verificación ha expirado o es inválido. Solicita uno nuevo.'
+      });
+    }
+
+    // Verificar la cuenta
+    usuario.emailVerificado = true;
+    usuario.tokenVerificacion = undefined;
+    usuario.expiracionTokenVerificacion = undefined;
+    await usuario.save();
+
+    // Generar token de sesión
+    const tokenSesion = generarToken(usuario);
+
+    // Responder con datos del usuario
+    const usuarioRespuesta = usuario.toObject();
+    delete usuarioRespuesta.contrasena;
+
+    res.json({
+      exito: true,
+      mensaje: '¡Tu cuenta ha sido verificada exitosamente! Ya puedes usar TécnicoYa.',
+      datos: {
+        usuario: usuarioRespuesta,
+        token: tokenSesion
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al verificar cuenta:', error);
+    res.status(500).json({
+      exito: false,
+      mensaje: 'Error al verificar la cuenta'
+    });
+  }
+};
+
+/**
+ * Reenviar correo de verificación
+ * POST /api/auth/reenviar-verificacion
+ */
+const reenviarVerificacion = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        exito: false,
+        mensaje: 'El email es obligatorio'
+      });
+    }
+
+    const usuario = await Usuario.findOne({ email: email.toLowerCase() });
+
+    // Por seguridad, siempre respondemos lo mismo
+    if (!usuario || usuario.emailVerificado) {
+      return res.json({
+        exito: true,
+        mensaje: 'Si el email existe y no está verificado, recibirás un correo de verificación.'
+      });
+    }
+
+    // Generar nuevo token
+    const tokenVerificacion = crypto.randomBytes(32).toString('hex');
+    const hashToken = crypto.createHash('sha256').update(tokenVerificacion).digest('hex');
+
+    usuario.tokenVerificacion = hashToken;
+    usuario.expiracionTokenVerificacion = Date.now() + 24 * 3600000; // 24 horas
+    await usuario.save();
+
+    // Enviar correo
+    try {
+      await enviarCorreoRegistro(
+        usuario.email,
+        usuario.perfil.nombre,
+        tokenVerificacion
+      );
+    } catch (emailError) {
+      console.error('Error al reenviar verificación:', emailError);
+    }
+
+    res.json({
+      exito: true,
+      mensaje: 'Si el email existe y no está verificado, recibirás un correo de verificación.'
+    });
+
+  } catch (error) {
+    console.error('Error al reenviar verificación:', error);
+    res.status(500).json({
+      exito: false,
+      mensaje: 'Error al procesar la solicitud'
     });
   }
 };
@@ -143,6 +274,16 @@ const login = async (req, res) => {
       return res.status(401).json({
         exito: false,
         mensaje: 'Tu cuenta ha sido desactivada. Contacta a soporte.'
+      });
+    }
+
+    // Verificar si el email está verificado
+    if (!usuario.emailVerificado) {
+      return res.status(403).json({
+        exito: false,
+        mensaje: 'Tu cuenta no ha sido verificada. Revisa tu correo electrónico.',
+        requiereVerificacion: true,
+        email: usuario.email
       });
     }
 
@@ -450,5 +591,7 @@ module.exports = {
   verificarToken,
   solicitarRecuperacion,
   restablecerContrasena,
-  verificarTokenRecuperacion
+  verificarTokenRecuperacion,
+  verificarCuenta,
+  reenviarVerificacion
 };

@@ -12,6 +12,8 @@ import {
   personOutline, cameraOutline, saveOutline, locationOutline,
   callOutline, mailOutline, closeCircle, navigateOutline
 } from 'ionicons/icons';
+import { Camera, CameraResultType, CameraSource, CameraPermissionType } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 import { AuthServicio } from '../../servicios/auth.servicio';
 import { UsuariosServicio } from '../../servicios/usuarios.servicio';
 import { GeolocalizacionServicio } from '../../servicios/geolocalizacion.servicio';
@@ -505,11 +507,17 @@ export class EditarPerfilPage implements OnInit {
       buttons: [
         {
           text: 'Tomar foto',
-          handler: () => this.tomarFoto()
+          handler: () => {
+            this.tomarFoto();
+            return true;
+          }
         },
         {
           text: 'Elegir de galería',
-          handler: () => this.elegirDeGaleria()
+          handler: () => {
+            this.elegirDeGaleria();
+            return true;
+          }
         },
         {
           text: 'Cancelar',
@@ -520,12 +528,96 @@ export class EditarPerfilPage implements OnInit {
     await actionSheet.present();
   }
 
-  tomarFoto(): void {
-    // En una app real, usaríamos Capacitor Camera
-    this.elegirDeGaleria();
+  async tomarFoto(): Promise<void> {
+    await this.capturarImagen(CameraSource.Camera);
   }
 
-  elegirDeGaleria(): void {
+  async elegirDeGaleria(): Promise<void> {
+    await this.capturarImagen(CameraSource.Photos);
+  }
+
+  /**
+   * Método unificado para capturar imagen usando Capacitor Camera
+   */
+  private async capturarImagen(source: CameraSource): Promise<void> {
+    try {
+      // Verificar si estamos en una plataforma nativa
+      if (Capacitor.isNativePlatform()) {
+        // Verificar y solicitar permisos
+        const permisos = await Camera.checkPermissions();
+        const permisoNecesario: CameraPermissionType = source === CameraSource.Camera ? 'camera' : 'photos';
+        
+        if (permisos[permisoNecesario] !== 'granted') {
+          const solicitado = await Camera.requestPermissions({ permissions: [permisoNecesario] });
+          if (solicitado[permisoNecesario] !== 'granted') {
+            await this.mostrarToast('Permiso denegado. Por favor habilita los permisos en la configuración.', 'warning');
+            return;
+          }
+        }
+
+        // Capturar imagen
+        const imagen = await Camera.getPhoto({
+          quality: 80,
+          allowEditing: true,
+          resultType: CameraResultType.Base64,
+          source: source,
+          width: 500,
+          height: 500,
+          correctOrientation: true
+        });
+
+        if (imagen.base64String) {
+          // Mostrar preview
+          this.fotoPreview = `data:image/${imagen.format || 'jpeg'};base64,${imagen.base64String}`;
+          
+          // Convertir base64 a File para subir
+          const blob = this.base64ToBlob(imagen.base64String, `image/${imagen.format || 'jpeg'}`);
+          this.archivoFoto = new File([blob], `foto_perfil.${imagen.format || 'jpg'}`, { 
+            type: `image/${imagen.format || 'jpeg'}` 
+          });
+        }
+      } else {
+        // Fallback para web/navegador
+        this.usarInputArchivo();
+      }
+    } catch (error: any) {
+      console.error('Error al capturar imagen:', error);
+      
+      // Si el usuario canceló, no mostrar error
+      if (error.message?.includes('cancelled') || error.message?.includes('User cancelled')) {
+        return;
+      }
+      
+      await this.mostrarToast('Error al acceder a la cámara/galería', 'danger');
+    }
+  }
+
+  /**
+   * Convertir base64 a Blob
+   */
+  private base64ToBlob(base64: string, contentType: string): Blob {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+    
+    return new Blob(byteArrays, { type: contentType });
+  }
+
+  /**
+   * Fallback usando input file para web
+   */
+  private usarInputArchivo(): void {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -579,40 +671,53 @@ export class EditarPerfilPage implements OnInit {
       }
     }
 
-    this.usuariosServicio.actualizarPerfil(datos).subscribe({
-      next: async (res) => {
-        // Actualizar el usuario en memoria y localStorage inmediatamente
-        if (res.exito && res.datos) {
-          this.authServicio.actualizarUsuario(res.datos);
-        }
-
-        // Subir foto si hay una nueva
-        if (this.archivoFoto) {
-          const formData = new FormData();
-          formData.append('foto', this.archivoFoto);
-          this.usuariosServicio.subirFotoPerfil(formData).subscribe({
-            next: () => {
-              console.log('Foto subida correctamente');
-              // Recargar usuario para obtener la nueva URL de foto
-              this.authServicio.cargarUsuario();
-            },
-            error: (err) => {
-              console.error('Error al subir foto:', err);
-              this.mostrarToast('Error al subir la foto', 'danger');
-            }
-          });
-        }
-
-        this.guardando = false;
-        await this.mostrarToast('Perfil actualizado correctamente', 'success');
-        this.router.navigate(['/tabs/perfil']);
-      },
-      error: (err) => {
-        console.error('Error al actualizar perfil:', err);
-        this.guardando = false;
-        this.mostrarToast('Error al actualizar perfil', 'danger');
+    try {
+      // Primero actualizar datos del perfil
+      const resPerfil = await this.usuariosServicio.actualizarPerfil(datos).toPromise();
+      
+      if (resPerfil?.exito && resPerfil.datos) {
+        // Actualizar usuario en memoria
+        this.authServicio.actualizarUsuario(resPerfil.datos);
       }
-    });
+
+      // Si hay foto nueva, subirla
+      if (this.archivoFoto) {
+        const formData = new FormData();
+        formData.append('foto', this.archivoFoto);
+        
+        try {
+          const resFoto = await this.usuariosServicio.subirFotoPerfil(formData).toPromise();
+          console.log('Foto subida:', resFoto);
+          
+          // Si el backend devuelve el usuario actualizado, usarlo
+          if (resFoto?.datos?.usuario) {
+            this.authServicio.actualizarUsuario(resFoto.datos.usuario);
+          } else if (resFoto?.datos?.fotoUrl) {
+            // Si solo devuelve la URL, actualizar manualmente
+            const usuarioActual = this.authServicio.obtenerUsuarioActual();
+            if (usuarioActual) {
+              if (!usuarioActual.perfil) {
+                usuarioActual.perfil = {} as any;
+              }
+              usuarioActual.perfil.fotoUrl = resFoto.datos.fotoUrl;
+              this.authServicio.actualizarUsuario(usuarioActual);
+            }
+          }
+        } catch (errFoto) {
+          console.error('Error al subir foto:', errFoto);
+          await this.mostrarToast('Error al subir la foto', 'warning');
+        }
+      }
+
+      this.guardando = false;
+      await this.mostrarToast('Perfil actualizado correctamente', 'success');
+      this.router.navigate(['/tabs/perfil']);
+      
+    } catch (err) {
+      console.error('Error al actualizar perfil:', err);
+      this.guardando = false;
+      await this.mostrarToast('Error al actualizar perfil', 'danger');
+    }
   }
 
   obtenerEtiquetaEspecialidad(tipo: string): string {

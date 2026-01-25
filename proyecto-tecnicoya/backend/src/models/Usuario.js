@@ -258,6 +258,12 @@ const esquemaUsuario = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  emailVerificado: {
+    type: Boolean,
+    default: false
+  },
+  tokenVerificacion: String,
+  expiracionTokenVerificacion: Date,
   ultimaConexion: {
     type: Date,
     default: Date.now

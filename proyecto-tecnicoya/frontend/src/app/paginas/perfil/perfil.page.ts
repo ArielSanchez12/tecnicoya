@@ -440,6 +440,24 @@ export class PerfilPage implements OnInit {
     this.cargarDatos();
   }
 
+  // Recargar datos cada vez que se muestra la página
+  ionViewWillEnter(): void {
+    // Forzar actualización del usuario desde localStorage
+    const usuarioGuardado = localStorage.getItem('tecnicoya_usuario');
+    if (usuarioGuardado) {
+      try {
+        this.usuario = JSON.parse(usuarioGuardado);
+        // Sincronizar valores de toggles
+        if (this.usuario?.datosTecnico) {
+          this.disponibleAhora = this.usuario.datosTecnico.disponibleAhora || false;
+          this.emergencia24h = this.usuario.datosTecnico.emergencia24h || false;
+        }
+      } catch (e) {
+        console.error('Error parsing usuario:', e);
+      }
+    }
+  }
+
   get esTecnico(): boolean {
     return this.authServicio.esTecnico();
   }
