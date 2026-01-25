@@ -1,5 +1,5 @@
 export const environment = {
   produccion: true,
-  apiUrl: 'https://api.tecnicoya.app/api',
-  socketUrl: 'https://api.tecnicoya.app'
+  apiUrl: 'https://tecnicoya.onrender.com/api',
+  socketUrl: 'https://tecnicoya.onrender.com'
 };

@@ -4,7 +4,28 @@
  * Templates y funciones para envío de correos
  */
 
-const transporter = require('../config/nodemailer');
+const { obtenerTransporter, correoDisponible } = require('../config/nodemailer');
+
+/**
+ * Función helper para enviar correo de forma segura
+ * Retorna true si se envió, false si el servicio no está disponible
+ */
+const enviarCorreoSeguro = async (mailOptions) => {
+  const transporter = obtenerTransporter();
+  if (!transporter) {
+    console.log('⚠️ Correo no enviado (servicio no disponible):', mailOptions.subject);
+    return false;
+  }
+  
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Correo enviado a ${mailOptions.to}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Error al enviar correo:', error.message);
+    return false;
+  }
+};
 
 /**
  * Genera el template HTML para los correos
@@ -172,14 +193,7 @@ const enviarCorreoRegistro = async (email, nombre, token) => {
     html: htmlContent
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo de registro enviado a ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Error al enviar correo de registro:', error.message);
-    throw error;
-  }
+  return await enviarCorreoSeguro(mailOptions);
 };
 
 /**
@@ -210,14 +224,7 @@ const enviarCorreoRecuperacion = async (email, nombre, token) => {
     html: htmlContent
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo de recuperación enviado a ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Error al enviar correo de recuperación:', error.message);
-    throw error;
-  }
+  return await enviarCorreoSeguro(mailOptions);
 };
 
 /**
@@ -241,14 +248,7 @@ const enviarCorreoCambioContrasena = async (email, nombre) => {
     html: htmlContent
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo de cambio de contraseña enviado a ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Error al enviar correo de cambio:', error.message);
-    throw error;
-  }
+  return await enviarCorreoSeguro(mailOptions);
 };
 
 /**
@@ -278,14 +278,7 @@ const enviarCorreoNuevoTrabajo = async (email, nombre, detallesTrabajo) => {
     html: htmlContent
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo de nuevo trabajo enviado a ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Error al enviar correo de nuevo trabajo:', error.message);
-    throw error;
-  }
+  return await enviarCorreoSeguro(mailOptions);
 };
 
 /**
@@ -314,14 +307,7 @@ const enviarCorreoTrabajoCompletado = async (email, nombre, detallesTrabajo) => 
     html: htmlContent
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo de trabajo completado enviado a ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Error al enviar correo de trabajo completado:', error.message);
-    throw error;
-  }
+  return await enviarCorreoSeguro(mailOptions);
 };
 
 module.exports = {
@@ -329,5 +315,6 @@ module.exports = {
   enviarCorreoRecuperacion,
   enviarCorreoCambioContrasena,
   enviarCorreoNuevoTrabajo,
-  enviarCorreoTrabajoCompletado
+  enviarCorreoTrabajoCompletado,
+  correoDisponible
 };

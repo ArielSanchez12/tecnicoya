@@ -99,13 +99,28 @@ if (process.env.ENTORNO === 'desarrollo') {
 
 // ===== RUTAS DE LA API =====
 
-// Ruta de health check
+// Ruta raíz - Health check básico
+app.get('/', (req, res) => {
+  res.json({
+    exito: true,
+    mensaje: '🔧 TécnicoYa API está funcionando',
+    version: '1.0.0',
+    endpoints: {
+      salud: '/api/salud',
+      auth: '/api/auth',
+      servicios: '/api/servicios'
+    }
+  });
+});
+
+// Ruta de health check detallado
 app.get('/api/salud', (req, res) => {
   res.json({
     exito: true,
     mensaje: 'API TécnicoYa funcionando correctamente',
     version: '1.0.0',
-    fecha: new Date().toISOString()
+    fecha: new Date().toISOString(),
+    entorno: process.env.NODE_ENV || process.env.ENTORNO || 'desarrollo'
   });
 });
 
@@ -185,7 +200,10 @@ const iniciarServidor = async () => {
     await crearIndices();
 
     // Iniciar servidor HTTP
-    servidor.listen(PUERTO, () => {
+    // En Render/Railway, debemos escuchar en 0.0.0.0 para aceptar conexiones externas
+    const HOST = process.env.HOST || '0.0.0.0';
+    
+    servidor.listen(PUERTO, HOST, () => {
       console.log('');
       console.log('╔════════════════════════════════════════════════╗');
       console.log('║                                                ║');
@@ -195,9 +213,10 @@ const iniciarServidor = async () => {
       console.log('║                                                ║');
       console.log('╚════════════════════════════════════════════════╝');
       console.log('');
-      console.log(`🌐 URL Local: http://localhost:${PUERTO}`);
-      console.log(`📡 Socket.io: ws://localhost:${PUERTO}`);
-      console.log(`💊 Health Check: http://localhost:${PUERTO}/api/salud`);
+      console.log(`🌐 Host: ${HOST}:${PUERTO}`);
+      console.log(`📡 Socket.io: habilitado`);
+      console.log(`💊 Health Check: /api/salud`);
+      console.log(`🔄 Entorno: ${process.env.NODE_ENV || process.env.ENTORNO || 'desarrollo'}`);
       console.log('');
     });
   } catch (error) {

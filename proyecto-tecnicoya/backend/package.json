@@ -4,6 +4,7 @@
   "description": "API REST para la plataforma TécnicoYa - Servicios técnicos a domicilio",
   "main": "src/servidor.js",
   "scripts": {
+    "start": "node src/servidor.js",
     "inicio": "node src/servidor.js",
     "desarrollo": "nodemon src/servidor.js",
     "semilla": "node src/semilla.js",
