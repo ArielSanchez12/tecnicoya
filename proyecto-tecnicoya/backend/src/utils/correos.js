@@ -4,15 +4,19 @@
  * Templates y funciones para envío de correos
  */
 
-const { correoDisponible, enviarCorreoConReintentos } = require('../config/nodemailer');
+const { correoDisponible, enviarCorreo } = require('../config/sendgrid');
 
 /**
- * Función helper para enviar correo de forma segura con reintentos
+ * Función helper para enviar correo de forma segura
  * Retorna true si se envió, false si falló
  */
 const enviarCorreoSeguro = async (mailOptions) => {
   try {
-    const resultado = await enviarCorreoConReintentos(mailOptions, 3);
+    const resultado = await enviarCorreo({
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      html: mailOptions.html
+    });
     return resultado.exito;
   } catch (error) {
     console.error('❌ Error al enviar correo:', error.message);

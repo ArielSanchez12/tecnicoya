@@ -1,0 +1,42 @@
+# Dependencias
+node_modules/
+*/node_modules/
+
+# Variables de entorno (NUNCA subir a GitHub)
+.env
+.env.local
+.env.production
+*/.env
+
+# Archivos de build
+dist/
+build/
+www/
+*/www/
+.angular/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos temporales
+*.tmp
+*.temp
+.cache/
+
+# Android build (se genera con capacitor)
+android/
+ios/
+
+# Coverage
+coverage/

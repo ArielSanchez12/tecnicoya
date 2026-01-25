@@ -115,7 +115,7 @@ app.get('/', (req, res) => {
 
 // Ruta de health check detallado
 app.get('/api/salud', async (req, res) => {
-  const { correoDisponible } = require('./config/nodemailer');
+  const { correoDisponible } = require('./config/sendgrid');
   
   res.json({
     exito: true,
@@ -124,25 +124,21 @@ app.get('/api/salud', async (req, res) => {
     fecha: new Date().toISOString(),
     entorno: process.env.NODE_ENV || process.env.ENTORNO || 'desarrollo',
     servicios: {
-      correo: correoDisponible() ? '✅ Activo' : '⏳ Inicializando...',
+      correo: correoDisponible() ? '✅ SendGrid activo' : '⚠️ No configurado',
       mongodb: '✅ Conectado',
       cloudinary: '✅ Configurado'
     }
   });
 });
 
-// Ruta para probar envío de correo (solo desarrollo)
+// Ruta para probar envío de correo
 app.get('/api/test-correo', async (req, res) => {
-  if (process.env.NODE_ENV === 'production' && !req.query.force) {
-    return res.status(403).json({ exito: false, mensaje: 'No disponible en producción' });
-  }
-
-  const { inicializarCorreo, correoDisponible, enviarCorreoConReintentos } = require('./config/nodemailer');
+  const { inicializarCorreo, correoDisponible, enviarCorreo } = require('./config/sendgrid');
   
   // Forzar inicialización si no está listo
   if (!correoDisponible()) {
-    console.log('🔄 Forzando inicialización del correo...');
-    await inicializarCorreo();
+    console.log('🔄 Inicializando servicio de correo...');
+    inicializarCorreo();
   }
 
   if (!correoDisponible()) {
@@ -150,26 +146,38 @@ app.get('/api/test-correo', async (req, res) => {
       exito: false,
       mensaje: 'Servicio de correo no disponible',
       configuracion: {
-        EMAIL_USER: process.env.EMAIL_USER ? '✓ configurado' : '✗ falta',
-        EMAIL_PASS: process.env.EMAIL_PASS ? '✓ configurado (' + process.env.EMAIL_PASS.length + ' chars)' : '✗ falta'
-      }
+        SENDGRID_API_KEY: process.env.SENDGRID_API_KEY ? '✓ configurado' : '✗ falta',
+        EMAIL_FROM: process.env.EMAIL_FROM || 'no configurado'
+      },
+      ayuda: 'Configura SENDGRID_API_KEY en las variables de entorno'
     });
   }
 
+  // Email de destino (puede ser query param o el default)
+  const emailDestino = req.query.to || 'riveraariel433@gmail.com';
+
   // Enviar correo de prueba
-  const resultado = await enviarCorreoConReintentos({
-    from: `"TécnicoYa Test" <${process.env.EMAIL_USER}>`,
-    to: process.env.EMAIL_USER, // Se envía a sí mismo
+  const resultado = await enviarCorreo({
+    to: emailDestino,
     subject: '✅ Test de correo - TécnicoYa',
-    html: '<h1>¡El correo funciona!</h1><p>Este es un correo de prueba desde TécnicoYa API.</p>'
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #3880ff;">¡El correo funciona! 🎉</h1>
+        <p>Este es un correo de prueba desde <strong>TécnicoYa API</strong>.</p>
+        <p>Si recibes este mensaje, SendGrid está configurado correctamente.</p>
+        <hr style="border: 1px solid #eee;">
+        <p style="color: #888; font-size: 12px;">Enviado desde: ${process.env.EMAIL_FROM}</p>
+      </div>
+    `
   });
 
   res.json({
     exito: resultado.exito,
-    mensaje: resultado.exito ? 'Correo de prueba enviado' : 'Error al enviar correo',
+    mensaje: resultado.exito ? `Correo enviado a ${emailDestino}` : 'Error al enviar correo',
     detalles: resultado
   });
 });
+
 
 // Rutas principales
 app.use('/api/auth', authRutas);
