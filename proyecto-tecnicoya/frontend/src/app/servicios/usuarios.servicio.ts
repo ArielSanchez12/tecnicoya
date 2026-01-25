@@ -42,8 +42,8 @@ export class UsuariosServicio {
   /**
    * Subir foto de perfil
    */
-  subirFotoPerfil(formData: FormData): Observable<RespuestaApi<{ url: string }>> {
-    return this.http.post<RespuestaApi<{ url: string }>>(`${this.apiUrl}/foto`, formData);
+  subirFotoPerfil(formData: FormData): Observable<RespuestaApi<{ fotoUrl: string; usuario?: Usuario }>> {
+    return this.http.post<RespuestaApi<{ fotoUrl: string; usuario?: Usuario }>>(`${this.apiUrl}/foto`, formData);
   }
 
   /**
