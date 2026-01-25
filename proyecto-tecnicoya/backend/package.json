@@ -1,0 +1,45 @@
+{
+  "name": "tecnicoya-backend",
+  "version": "1.0.0",
+  "description": "API REST para la plataforma TécnicoYa - Servicios técnicos a domicilio",
+  "main": "src/servidor.js",
+  "scripts": {
+    "inicio": "node src/servidor.js",
+    "desarrollo": "nodemon src/servidor.js",
+    "semilla": "node src/semilla.js",
+    "test": "echo \"Error: no hay tests especificados\" && exit 1"
+  },
+  "keywords": [
+    "tecnico",
+    "servicios",
+    "plomeria",
+    "electricidad",
+    "cerrajeria",
+    "mongodb",
+    "express",
+    "socketio"
+  ],
+  "author": "Estudiante DAM",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.41.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^7.0.12",
+    "socket.io": "^4.7.2",
+    "streamifier": "^0.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

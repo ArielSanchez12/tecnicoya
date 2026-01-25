@@ -1,0 +1,665 @@
+/*
+ * Estilos Globales - TécnicoYa
+ */
+
+/*
+ * Ionic Framework
+ * http://ionicframework.com/
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+// ===== ESTILOS PERSONALIZADOS TECNICOYA =====
+
+// Fuentes
+:root {
+  --fuente-principal: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  font-family: var(--fuente-principal);
+}
+
+// ===== UTILIDADES =====
+
+// Texto
+.texto-centro {
+  text-align: center;
+}
+
+.texto-derecha {
+  text-align: right;
+}
+
+.texto-izquierda {
+  text-align: left;
+}
+
+.texto-negrita {
+  font-weight: bold;
+}
+
+.texto-cursiva {
+  font-style: italic;
+}
+
+.texto-pequeno {
+  font-size: 0.85em;
+}
+
+.texto-grande {
+  font-size: 1.2em;
+}
+
+.texto-muted {
+  color: var(--ion-color-medium);
+}
+
+// Márgenes
+.margen-arriba {
+  margin-top: 16px;
+}
+
+.margen-abajo {
+  margin-bottom: 16px;
+}
+
+.sin-margen {
+  margin: 0;
+}
+
+.sin-padding {
+  padding: 0;
+}
+
+// Flexbox
+.flex {
+  display: flex;
+}
+
+.flex-centro {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-columna {
+  flex-direction: column;
+}
+
+.flex-entre {
+  justify-content: space-between;
+}
+
+.flex-alrededor {
+  justify-content: space-around;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.gap-8 {
+  gap: 8px;
+}
+
+.gap-16 {
+  gap: 16px;
+}
+
+// ===== COMPONENTES PERSONALIZADOS =====
+
+// Tarjetas
+.tarjeta-servicio {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+
+  ion-card-header {
+    padding-bottom: 8px;
+  }
+
+  ion-card-content {
+    padding-top: 0;
+  }
+}
+
+.tarjeta-tecnico {
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  .avatar-tecnico {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .calificacion {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ion-color-warning);
+
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+}
+
+// Badges de estado
+.badge-estado {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+
+  &.publicado {
+    background-color: var(--ion-color-primary);
+    color: white;
+  }
+
+  &.cotizado {
+    background-color: var(--ion-color-secondary);
+    color: white;
+  }
+
+  &.en-progreso {
+    background-color: var(--ion-color-warning);
+    color: black;
+  }
+
+  &.completado {
+    background-color: var(--ion-color-success);
+    color: white;
+  }
+
+  &.cancelado {
+    background-color: var(--ion-color-danger);
+    color: white;
+  }
+
+  &.emergencia {
+    background-color: var(--ion-color-emergencia);
+    color: white;
+    animation: pulse 1.5s infinite;
+  }
+}
+
+// ===== BADGE TÉCNICO VERIFICADO (estilo garantía) =====
+.badge-tecnico-verificado {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #43a047 100%);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-transform: none;
+  letter-spacing: 0.3px;
+
+  ion-icon {
+    font-size: 14px;
+  }
+
+  &.badge-pequeno {
+    font-size: 9px;
+    padding: 2px 6px;
+
+    ion-icon {
+      font-size: 11px;
+    }
+  }
+
+  &.badge-grande {
+    font-size: 13px;
+    padding: 6px 14px;
+
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+// Animación de pulso para emergencias
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 59, 59, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 59, 59, 0);
+  }
+}
+
+// Chips de especialidad
+.chip-especialidad {
+  --background: var(--ion-color-light);
+  --color: var(--ion-color-dark);
+  font-size: 12px;
+  margin: 2px;
+}
+
+// Niveles de fidelización
+.nivel-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+
+  &.bronce {
+    background-color: var(--nivel-bronce);
+    color: white;
+  }
+
+  &.plata {
+    background-color: var(--nivel-plata);
+    color: #333;
+  }
+
+  &.oro {
+    background-color: var(--nivel-oro);
+    color: #333;
+  }
+
+  &.platino {
+    background: linear-gradient(135deg, #e5e4e2 0%, #c0c0c0 100%);
+    color: #333;
+  }
+}
+
+// Estrellas de calificación
+.estrellas {
+  display: inline-flex;
+  gap: 2px;
+
+  ion-icon {
+    color: var(--ion-color-warning);
+    font-size: 18px;
+
+    &.vacia {
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// Botón flotante de emergencia
+.boton-emergencia {
+  --background: var(--ion-color-emergencia);
+  --color: white;
+  --border-radius: 50px;
+  height: 56px;
+  font-weight: bold;
+
+  ion-icon {
+    margin-right: 8px;
+  }
+}
+
+// ===== MAPA LEAFLET =====
+
+.contenedor-mapa {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 12px 0;
+
+  &.mapa-grande {
+    height: 400px;
+  }
+
+  &.mapa-completo {
+    height: 100%;
+    border-radius: 0;
+    margin: 0;
+  }
+}
+
+// Marcador personalizado del mapa
+.marcador-tecnico {
+  background-color: var(--ion-color-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}
+
+// ===== SKELETON LOADING =====
+
+.skeleton-tarjeta {
+  ion-skeleton-text {
+    --border-radius: 4px;
+  }
+}
+
+// ===== FORMULARIOS =====
+
+.formulario-registro {
+  ion-item {
+    --border-radius: 8px;
+    --background: var(--ion-color-light);
+    margin-bottom: 12px;
+  }
+
+  ion-input,
+  ion-textarea {
+    --padding-start: 12px;
+    --color: #222428;
+    color: #222428;
+  }
+
+  // Asegurar que el texto del input sea visible
+  ion-input input,
+  ion-textarea textarea {
+    color: #222428 !important;
+  }
+}
+
+// Error de validación
+.error-validacion {
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  padding: 4px 16px;
+}
+
+// ===== CHAT =====
+
+.mensaje-chat {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  margin-bottom: 8px;
+
+  &.enviado {
+    background-color: var(--ion-color-primary);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
+
+  &.recibido {
+    background-color: var(--ion-color-light);
+    color: var(--ion-color-dark);
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+  }
+
+  .hora-mensaje {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-top: 4px;
+    text-align: right;
+  }
+}
+
+.escribiendo {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  font-style: italic;
+  padding: 8px 16px;
+}
+
+// ===== RESPONSIVE =====
+
+@media (min-width: 768px) {
+  .contenedor-mapa {
+    height: 400px;
+  }
+
+  .tarjeta-tecnico {
+    .avatar-tecnico {
+      width: 80px;
+      height: 80px;
+    }
+  }
+}
+
+// ===== ANIMACIONES =====
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// ===== SWIPER/SLIDES =====
+
+swiper-container {
+  --swiper-pagination-color: var(--ion-color-primary);
+  --swiper-pagination-bullet-inactive-color: var(--ion-color-medium);
+}
+
+// ===== PULL TO REFRESH =====
+
+ion-refresher {
+  ion-refresher-content {
+    --color: var(--ion-color-primary);
+  }
+}
+
+// ===== ALERTS PERSONALIZADOS =====
+
+.alert-cotizacion-detalle {
+  --max-width: 90%;
+  --width: 400px;
+
+  .alert-head {
+    padding-bottom: 8px;
+
+    h2 {
+      font-size: 18px !important;
+      font-weight: 600 !important;
+    }
+
+    .alert-sub-title {
+      font-size: 20px !important;
+      color: var(--ion-color-primary) !important;
+      font-weight: 700 !important;
+      margin-top: 4px;
+    }
+  }
+
+  .alert-message {
+    padding-top: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
+    white-space: pre-line;
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .alert-button-group {
+    padding-top: 8px;
+  }
+}
+
+// ===== MODAL DE PAGO CON TARJETA =====
+.alert-pago-tarjeta {
+  .alert-wrapper {
+    max-width: 450px !important;
+    min-width: 380px !important;
+    border-radius: 16px !important;
+  }
+
+  .alert-head {
+    background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+    padding: 20px !important;
+    border-radius: 16px 16px 0 0;
+
+    .alert-title {
+      color: white !important;
+      font-size: 22px !important;
+      font-weight: 700 !important;
+    }
+
+    .alert-sub-title {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-size: 16px !important;
+      font-weight: 500 !important;
+    }
+  }
+
+  .alert-input-group {
+    padding: 20px !important;
+    background: #f8f9fa;
+
+    .alert-input-wrapper {
+      margin-bottom: 14px;
+      background: white;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      padding: 0 !important;
+
+      &:focus-within {
+        border-color: var(--ion-color-primary);
+        box-shadow: 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.2);
+      }
+
+      input {
+        padding: 16px 18px !important;
+        font-size: 16px !important;
+        border: none !important;
+        border-radius: 10px;
+        background: transparent;
+        color: #000 !important;
+
+        &::placeholder {
+          color: #999;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .alert-button-group {
+    padding: 12px 20px 20px !important;
+    background: #f8f9fa;
+    border-radius: 0 0 16px 16px;
+    gap: 12px;
+
+    .alert-button {
+      border-radius: 10px !important;
+      font-weight: 600 !important;
+      text-transform: none !important;
+      min-height: 48px;
+
+      &:first-child {
+        background: #e0e0e0 !important;
+        color: #666 !important;
+      }
+
+      &:last-child {
+        background: var(--ion-color-success) !important;
+        color: white !important;
+      }
+    }
+  }
+}
+
+// ===== ALERT SUBIR FOTOS =====
+.alert-subir-fotos {
+  .alert-wrapper {
+    border-radius: 16px !important;
+  }
+
+  .alert-head {
+    background: linear-gradient(135deg, var(--ion-color-tertiary), var(--ion-color-tertiary-shade));
+    padding: 20px !important;
+    border-radius: 16px 16px 0 0;
+
+    .alert-title {
+      color: white !important;
+      font-size: 20px !important;
+    }
+  }
+
+  .alert-message {
+    padding: 20px !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: var(--ion-color-medium);
+    background: #f8f9fa;
+  }
+
+  .alert-button-group {
+    padding: 12px 16px 16px !important;
+    background: #f8f9fa;
+
+    .alert-button {
+      border-radius: 10px !important;
+      font-weight: 600 !important;
+
+      &:last-child {
+        background: var(--ion-color-tertiary) !important;
+        color: white !important;
+      }
+    }
+  }
+}

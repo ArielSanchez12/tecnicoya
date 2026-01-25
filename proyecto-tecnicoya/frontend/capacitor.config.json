@@ -1,0 +1,42 @@
+{
+  "appId": "com.tecnicoya.app",
+  "appName": "TécnicoYa",
+  "webDir": "www/browser",
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": ["*"]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#3880ff",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": true,
+      "spinnerColor": "#ffffff"
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    },
+    "Geolocation": {
+      "enableHighAccuracy": true
+    },
+    "Camera": {
+      "presentationStyle": "fullscreen"
+    },
+    "App": {
+      "appUrlOpen": {
+        "autoVerify": true
+      }
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "@capawesome/capacitor-file-picker",
+  "integrations": {
+    "capacitor": {}
+  }
+}
