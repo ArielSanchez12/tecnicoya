@@ -114,13 +114,60 @@ app.get('/', (req, res) => {
 });
 
 // Ruta de health check detallado
-app.get('/api/salud', (req, res) => {
+app.get('/api/salud', async (req, res) => {
+  const { correoDisponible } = require('./config/nodemailer');
+  
   res.json({
     exito: true,
     mensaje: 'API TécnicoYa funcionando correctamente',
     version: '1.0.0',
     fecha: new Date().toISOString(),
-    entorno: process.env.NODE_ENV || process.env.ENTORNO || 'desarrollo'
+    entorno: process.env.NODE_ENV || process.env.ENTORNO || 'desarrollo',
+    servicios: {
+      correo: correoDisponible() ? '✅ Activo' : '⏳ Inicializando...',
+      mongodb: '✅ Conectado',
+      cloudinary: '✅ Configurado'
+    }
+  });
+});
+
+// Ruta para probar envío de correo (solo desarrollo)
+app.get('/api/test-correo', async (req, res) => {
+  if (process.env.NODE_ENV === 'production' && !req.query.force) {
+    return res.status(403).json({ exito: false, mensaje: 'No disponible en producción' });
+  }
+
+  const { inicializarCorreo, correoDisponible, enviarCorreoConReintentos } = require('./config/nodemailer');
+  
+  // Forzar inicialización si no está listo
+  if (!correoDisponible()) {
+    console.log('🔄 Forzando inicialización del correo...');
+    await inicializarCorreo();
+  }
+
+  if (!correoDisponible()) {
+    return res.json({
+      exito: false,
+      mensaje: 'Servicio de correo no disponible',
+      configuracion: {
+        EMAIL_USER: process.env.EMAIL_USER ? '✓ configurado' : '✗ falta',
+        EMAIL_PASS: process.env.EMAIL_PASS ? '✓ configurado (' + process.env.EMAIL_PASS.length + ' chars)' : '✗ falta'
+      }
+    });
+  }
+
+  // Enviar correo de prueba
+  const resultado = await enviarCorreoConReintentos({
+    from: `"TécnicoYa Test" <${process.env.EMAIL_USER}>`,
+    to: process.env.EMAIL_USER, // Se envía a sí mismo
+    subject: '✅ Test de correo - TécnicoYa',
+    html: '<h1>¡El correo funciona!</h1><p>Este es un correo de prueba desde TécnicoYa API.</p>'
+  });
+
+  res.json({
+    exito: resultado.exito,
+    mensaje: resultado.exito ? 'Correo de prueba enviado' : 'Error al enviar correo',
+    detalles: resultado
   });
 });
 

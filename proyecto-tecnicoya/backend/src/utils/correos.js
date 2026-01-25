@@ -4,23 +4,16 @@
  * Templates y funciones para envío de correos
  */
 
-const { obtenerTransporter, correoDisponible } = require('../config/nodemailer');
+const { correoDisponible, enviarCorreoConReintentos } = require('../config/nodemailer');
 
 /**
- * Función helper para enviar correo de forma segura
- * Retorna true si se envió, false si el servicio no está disponible
+ * Función helper para enviar correo de forma segura con reintentos
+ * Retorna true si se envió, false si falló
  */
 const enviarCorreoSeguro = async (mailOptions) => {
-  const transporter = obtenerTransporter();
-  if (!transporter) {
-    console.log('⚠️ Correo no enviado (servicio no disponible):', mailOptions.subject);
-    return false;
-  }
-  
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo enviado a ${mailOptions.to}`);
-    return true;
+    const resultado = await enviarCorreoConReintentos(mailOptions, 3);
+    return resultado.exito;
   } catch (error) {
     console.error('❌ Error al enviar correo:', error.message);
     return false;
