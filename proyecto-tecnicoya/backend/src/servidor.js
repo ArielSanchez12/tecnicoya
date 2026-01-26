@@ -194,19 +194,28 @@ app.use('/api/mensajes', mensajesRutas);
 
 // Importar modelo de Usuario para verificación
 const Usuario = require('./models/Usuario');
+const crypto = require('crypto');
 
 // Ruta para confirmar cuenta desde el enlace del correo
 app.get('/confirmar-cuenta/:token', async (req, res) => {
   const { token } = req.params;
   
   try {
-    // Buscar usuario con ese token de verificación
+    // IMPORTANTE: El token en la base de datos está hasheado
+    // Debemos hashear el token recibido para comparar
+    const hashToken = crypto.createHash('sha256').update(token).digest('hex');
+    
+    console.log('Token recibido:', token);
+    console.log('Token hasheado:', hashToken);
+    
+    // Buscar usuario con el token hasheado
     const usuario = await Usuario.findOne({
-      tokenVerificacion: token,
+      tokenVerificacion: hashToken,
       expiracionTokenVerificacion: { $gt: new Date() }
     });
 
     if (!usuario) {
+      console.log('Usuario no encontrado con token:', hashToken);
       return res.send(generarPaginaHTML(
         'Enlace Inválido',
         '❌',
@@ -221,6 +230,8 @@ app.get('/confirmar-cuenta/:token', async (req, res) => {
     usuario.tokenVerificacion = undefined;
     usuario.expiracionTokenVerificacion = undefined;
     await usuario.save();
+    
+    console.log('✅ Cuenta verificada para:', usuario.email);
 
     res.send(generarPaginaHTML(
       '¡Cuenta Verificada!',
@@ -247,9 +258,12 @@ app.get('/restablecer-contrasena/:token', async (req, res) => {
   const { token } = req.params;
   
   try {
+    // IMPORTANTE: El token en la base de datos está hasheado
+    const hashToken = crypto.createHash('sha256').update(token).digest('hex');
+    
     // Verificar que el token sea válido
     const usuario = await Usuario.findOne({
-      tokenRecuperacion: token,
+      tokenRecuperacion: hashToken,
       expiracionTokenRecuperacion: { $gt: new Date() }
     });
 
@@ -304,8 +318,11 @@ app.post('/restablecer-contrasena/:token', express.urlencoded({ extended: true }
       ));
     }
 
+    // IMPORTANTE: El token en la base de datos está hasheado
+    const hashToken = crypto.createHash('sha256').update(token).digest('hex');
+
     const usuario = await Usuario.findOne({
-      tokenRecuperacion: token,
+      tokenRecuperacion: hashToken,
       expiracionTokenRecuperacion: { $gt: new Date() }
     });
 
