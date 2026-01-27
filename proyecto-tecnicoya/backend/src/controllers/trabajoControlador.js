@@ -232,9 +232,9 @@ const actualizarEstado = async (req, res) => {
 
     // Crear mensaje de sistema en el chat
     const mensajesSistema = {
-      'en_camino': '🚗 El técnico está en camino',
-      'en_progreso': '🔧 El trabajo ha comenzado',
-      'completado': '✅ El trabajo ha sido completado'
+      'en_camino': 'El técnico está en camino',
+      'en_progreso': 'El trabajo ha comenzado',
+      'completado': 'El trabajo ha sido completado'
     };
 
     if (mensajesSistema[nuevoEstado]) {

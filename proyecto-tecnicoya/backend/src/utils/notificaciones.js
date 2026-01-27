@@ -288,7 +288,7 @@ const notificarTecnicoInmediato = (tecnicos, servicio, precioAutomatico) => {
 const notificarTecnicoAceptoInmediato = (idCliente, tecnico, trabajo) => {
   const notificacion = {
     tipo: TIPOS_NOTIFICACION.TECNICO_ACEPTO_INMEDIATO,
-    titulo: '✅ ¡Técnico encontrado!',
+    titulo: 'Técnico encontrado',
     mensaje: `${tecnico.perfil.nombre} aceptó tu solicitud y va en camino`,
     datos: {
       idTrabajo: trabajo._id,
@@ -398,7 +398,7 @@ const notificarCotizacionNoSeleccionada = (idTecnico, cotizacion, servicio) => {
 const notificarPagoProcesado = (idCliente, trabajo) => {
   const notificacion = {
     tipo: TIPOS_NOTIFICACION.PAGO_PROCESADO,
-    titulo: '✅ Pago procesado',
+    titulo: 'Pago procesado',
     mensaje: `Tu pago de $${trabajo.pago.monto.toFixed(2)} ha sido procesado${trabajo.pago.tieneGarantia ? ' y está protegido' : ''}`,
     datos: {
       idTrabajo: trabajo._id,

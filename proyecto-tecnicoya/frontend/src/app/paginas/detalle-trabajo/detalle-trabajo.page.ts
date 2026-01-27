@@ -276,14 +276,14 @@ import { Subscription } from 'rxjs';
                   }
                   @if (fotosCargadas) {
                     <p class="fotos-subidas-exito ion-text-center ion-margin-top">
-                      ✅ Fotos subidas correctamente
+                      Fotos subidas correctamente
                     </p>
                   }
                 </div>
               }
               @if (trabajo.estado === 'completado' && trabajo.pago?.estado !== 'liberado') {
                 <p class="texto-espera ion-text-center ion-margin-top">
-                  ⏳ Esperando aprobación del cliente...
+                  Esperando aprobación del cliente...
                 </p>
                 <ion-button expand="block" fill="outline" color="warning" class="ion-margin-top" (click)="iniciarDisputa()">
                   <ion-icon name="warning-outline" slot="start"></ion-icon>
@@ -889,9 +889,9 @@ export class DetalleTrabajoPage implements OnInit, OnDestroy {
 
   obtenerMensajeEstado(estado: string): string {
     const mensajes: Record<string, string> = {
-      'en_camino': '🚗 ¡En camino! El cliente ha sido notificado',
-      'en_progreso': '🔧 Trabajo iniciado',
-      'completado': '✅ Trabajo marcado como completado'
+      'en_camino': 'En camino al cliente',
+      'en_progreso': 'Trabajo iniciado',
+      'completado': 'Trabajo marcado como completado'
     };
     return mensajes[estado] || 'Estado actualizado';
   }
@@ -1095,7 +1095,7 @@ export class DetalleTrabajoPage implements OnInit, OnDestroy {
         this.archivosSeleccionados = [];
         this.mostrandoPreviewFotos = false;
         const toast = await this.toastController.create({
-          message: `✅ ${cantidadSubida} foto(s) subida(s) exitosamente`,
+          message: `${cantidadSubida} foto(s) subida(s) exitosamente`,
           duration: 3000,
           color: 'success',
           position: 'top'
@@ -1219,7 +1219,7 @@ export class DetalleTrabajoPage implements OnInit, OnDestroy {
       next: async () => {
         await loading.dismiss();
         const alert = await this.alertController.create({
-          header: '✅ Disputa Enviada',
+          header: 'Disputa Enviada',
           message: 'Tu disputa ha sido registrada. Nuestro equipo de soporte la revisará en las próximas 24-48 horas y te contactarán para resolver el problema.\n\nMientras tanto, el pago quedará retenido hasta que se resuelva la situación.',
           buttons: ['Entendido']
         });

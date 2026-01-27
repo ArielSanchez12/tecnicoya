@@ -72,34 +72,6 @@ import { FormsModule } from '@angular/forms';
         </ion-card-content>
       </ion-card>
 
-      <!-- Apariencia -->
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="moon-outline"></ion-icon>
-            Apariencia
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list lines="none">
-            <ion-item>
-              <ion-label>Tema</ion-label>
-              <ion-select [(ngModel)]="config.tema" (ionChange)="cambiarTema()">
-                <ion-select-option value="light">Claro</ion-select-option>
-                <ion-select-option value="dark">Oscuro</ion-select-option>
-                <ion-select-option value="system">Sistema</ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item>
-              <ion-label>Idioma</ion-label>
-              <ion-select [(ngModel)]="config.idioma" (ionChange)="guardarConfig()">
-                <ion-select-option value="es">Español</ion-select-option>
-                <ion-select-option value="en">English</ion-select-option>
-              </ion-select>
-            </ion-item>
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
 
       <!-- Privacidad -->
       <ion-card>
@@ -133,27 +105,6 @@ import { FormsModule } from '@angular/forms';
         </ion-card-content>
       </ion-card>
 
-      <!-- Datos -->
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="download-outline"></ion-icon>
-            Mis datos
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list lines="none">
-            <ion-item button (click)="descargarDatos()">
-              <ion-icon name="download-outline" slot="start"></ion-icon>
-              <ion-label>Descargar mis datos</ion-label>
-            </ion-item>
-            <ion-item button (click)="eliminarCuenta()">
-              <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
-              <ion-label color="danger">Eliminar mi cuenta</ion-label>
-            </ion-item>
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
 
       <!-- Información -->
       <ion-card>

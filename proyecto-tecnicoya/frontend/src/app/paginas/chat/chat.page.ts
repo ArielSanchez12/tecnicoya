@@ -356,11 +356,14 @@ export class ChatPage implements OnInit, OnDestroy {
         if (res.datos) {
           this.mensajes = res.datos.map((m: any) => ({
             _id: m._id,
+            trabajo: m.idTrabajo || '',
+            remitente: m.idEmisor?._id || m.idEmisor,
             emisor: m.idEmisor?._id || m.idEmisor,
             receptor: m.idReceptor,
             contenido: m.contenido,
             tipo: m.tipoMensaje || 'texto',
             leido: m.leido,
+            fechaCreacion: m.fechaEnvio || m.fechaCreacion,
             createdAt: m.fechaEnvio || m.fechaCreacion
           }));
           this.scrollToBottom();
@@ -379,8 +382,8 @@ export class ChatPage implements OnInit, OnDestroy {
     const miId = usuario?._id;
 
     // Escuchar mensajes entrantes de otros usuarios
-    const msgSub = this.socketServicio.escucharMensajes().subscribe(mensaje => {
-      // Normalizar el emisor
+    const msgSub = this.socketServicio.escucharMensajes().subscribe((mensaje: any) => {
+      // Normalizar el emisor (el servidor puede enviar 'emisor' o 'idEmisor')
       const emisorId = mensaje.emisor || mensaje.idEmisor;
 
       // Ignorar mensajes propios (ya se mostraron como temporales)
@@ -397,11 +400,14 @@ export class ChatPage implements OnInit, OnDestroy {
       // Agregar mensaje del receptor
       const mensajeNormalizado: Mensaje = {
         _id: mensaje._id,
+        trabajo: mensaje.idTrabajo || '',
+        remitente: emisorId,
         emisor: emisorId,
         receptor: mensaje.receptor || miId,
         contenido: mensaje.contenido,
         tipo: 'texto',
         leido: false,
+        fechaCreacion: mensaje.createdAt || mensaje.fechaEnvio || new Date().toISOString(),
         createdAt: mensaje.createdAt || mensaje.fechaEnvio || new Date().toISOString()
       };
 

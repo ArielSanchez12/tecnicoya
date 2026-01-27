@@ -509,10 +509,7 @@ export class BuscarPage implements OnInit {
 
   get tieneEmergencias24h(): boolean {
     const usuario = this.authServicio.obtenerUsuario();
-    return usuario?.datosTecnico?.disponibleEmergencias === true || 
-           usuario?.datosTecnico?.emergencia24h === true;
-  }
-    return this.authServicio.esTecnico();
+    return usuario?.datosTecnico?.emergencia24h === true;
   }
 
   async buscar(): Promise<void> {

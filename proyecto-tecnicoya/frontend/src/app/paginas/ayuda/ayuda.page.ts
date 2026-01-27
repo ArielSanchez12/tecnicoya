@@ -100,15 +100,11 @@ interface CategoriaAyuda {
           <p>Nuestro equipo de soporte está aquí para ayudarte</p>
           
           <div class="opciones-contacto">
-            <ion-button fill="outline" (click)="abrirChat()">
-              <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
-              Chat en vivo
-            </ion-button>
-            <ion-button fill="outline" href="tel:+5491155555555">
+            <ion-button fill="outline" href="tel:+593962909642">
               <ion-icon name="call-outline" slot="start"></ion-icon>
               Llamar
             </ion-button>
-            <ion-button fill="outline" href="mailto:soporte@tecnicoya.com">
+            <ion-button fill="outline" href="mailto:richardpadilla3rod@gmail.com">
               <ion-icon name="mail-outline" slot="start"></ion-icon>
               Email
             </ion-button>
@@ -320,7 +316,7 @@ export class AyudaPage implements OnInit {
     {
       categoria: 'Puntos',
       pregunta: '¿Cómo funcionan los puntos de fidelización?',
-      respuesta: 'Ganas puntos por cada servicio completado, por dejar reseñas y por referir amigos. Los puntos se pueden canjear por descuentos en futuros servicios. Además, acumula puntos para subir de nivel y obtener beneficios exclusivos.'
+      respuesta: 'Ganas puntos por cada servicio mayor a 10 dólares completado y por dejar reseñas. Los puntos se pueden canjear por descuentos en futuros servicios. Además, acumula puntos para subir de nivel y obtener beneficios exclusivos.'
     }
   ];
 

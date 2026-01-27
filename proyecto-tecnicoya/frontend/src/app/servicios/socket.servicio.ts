@@ -179,11 +179,11 @@ export class SocketServicio {
 
   private obtenerTituloEstado(estado: string): string {
     const titulos: Record<string, string> = {
-      'en_camino': '🚗 Técnico en camino',
-      'en_progreso': '🔧 Trabajo iniciado',
-      'completado': '✅ Trabajo completado'
+      'en_camino': 'Técnico en camino',
+      'en_progreso': 'Trabajo iniciado',
+      'completado': 'Trabajo completado'
     };
-    return titulos[estado] || '📍 Estado actualizado';
+    return titulos[estado] || 'Estado actualizado';
   }
 
   private obtenerMensajeEstado(estado: string, nombreTecnico?: string): string {
@@ -323,7 +323,7 @@ export class SocketServicio {
       this.notificacionSubject.next({
         _id: Date.now().toString(),
         tipo: 'pago_procesado',
-        titulo: data.titulo || '✅ Pago procesado',
+        titulo: data.titulo || 'Pago procesado',
         mensaje: data.mensaje || `Tu pago ha sido procesado`,
         datos: data.datos || data,
         leida: false,

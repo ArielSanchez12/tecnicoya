@@ -132,15 +132,15 @@ interface Retiro {
                 <ion-input 
                   type="text" 
                   formControlName="numeroCuenta"
-                  placeholder="Ej: 0000003100000000000001"
-                  maxlength="22"
+                  placeholder="Ej: 2209334567"
+                  maxlength="10"
                 ></ion-input>
               </ion-item>
               @if (formulario.get('numeroCuenta')?.touched && formulario.get('numeroCuenta')?.errors?.['required']) {
                 <ion-note color="danger" class="error-note">El número de cuenta es obligatorio</ion-note>
               }
               @if (formulario.get('numeroCuenta')?.errors?.['minlength']) {
-                <ion-note color="danger" class="error-note">El CBU/CVU debe tener 22 dígitos</ion-note>
+                <ion-note color="danger" class="error-note">El número de cuenta debe tener al menos 10 dígitos</ion-note>
               }
 
               <ion-item>
@@ -480,7 +480,7 @@ export class RetirarFondosPage implements OnInit {
 
           // Mostrar éxito
           const alert = await this.alertCtrl.create({
-            header: '✅ ¡Retiro Exitoso!',
+            header: 'Retiro Exitoso',
             message: `Se han enviado $${montoRetirado.toFixed(2)} a tu cuenta bancaria. El depósito se reflejará en las próximas 24-48 horas hábiles.`,
             buttons: ['Entendido']
           });

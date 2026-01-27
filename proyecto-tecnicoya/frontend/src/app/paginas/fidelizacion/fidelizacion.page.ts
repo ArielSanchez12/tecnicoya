@@ -157,14 +157,6 @@ import { NgFor, NgIf, DecimalPipe, DatePipe } from '@angular/common';
               <span class="accion">Dejar una reseña completa</span>
               <span class="puntos-ganar">+5 pts</span>
             </div>
-            <div class="ganar-item">
-              <span class="accion">Referir a un amigo</span>
-              <span class="puntos-ganar">+50 pts</span>
-            </div>
-            <div class="ganar-item">
-              <span class="accion">Completar tu perfil</span>
-              <span class="puntos-ganar">+20 pts</span>
-            </div>
             <div class="ganar-info">
               <p><strong>100 puntos = $10 de descuento</strong></p>
               <p class="info-detalle">Canjea tus puntos en tu próximo servicio</p>

@@ -124,9 +124,9 @@ app.get('/api/salud', async (req, res) => {
     fecha: new Date().toISOString(),
     entorno: process.env.NODE_ENV || process.env.ENTORNO || 'desarrollo',
     servicios: {
-      correo: correoDisponible() ? '✅ SendGrid activo' : '⚠️ No configurado',
-      mongodb: '✅ Conectado',
-      cloudinary: '✅ Configurado'
+      correo: correoDisponible() ? 'SendGrid activo' : 'No configurado',
+      mongodb: 'Conectado',
+      cloudinary: 'Configurado'
     }
   });
 });
@@ -159,7 +159,7 @@ app.get('/api/test-correo', async (req, res) => {
   // Enviar correo de prueba
   const resultado = await enviarCorreo({
     to: emailDestino,
-    subject: '✅ Test de correo - TécnicoYa',
+    subject: 'Test de correo - TécnicoYa',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h1 style="color: #3880ff;">¡El correo funciona! 🎉</h1>
@@ -235,7 +235,6 @@ app.get('/confirmar-cuenta/:token', async (req, res) => {
 
     res.send(generarPaginaHTML(
       '¡Cuenta Verificada!',
-      '✅',
       `¡Felicitaciones ${usuario.perfil?.nombre || 'Usuario'}!`,
       'Tu cuenta ha sido verificada exitosamente. Ya puedes iniciar sesión en la aplicación TécnicoYa.',
       'success'
@@ -344,7 +343,6 @@ app.post('/restablecer-contrasena/:token', express.urlencoded({ extended: true }
 
     res.send(generarPaginaHTML(
       '¡Contraseña Actualizada!',
-      '✅',
       'Tu contraseña ha sido cambiada exitosamente.',
       'Ya puedes iniciar sesión con tu nueva contraseña en la aplicación TécnicoYa.',
       'success'
@@ -354,7 +352,6 @@ app.post('/restablecer-contrasena/:token', express.urlencoded({ extended: true }
     console.error('Error actualizando contraseña:', error);
     res.send(generarPaginaHTML(
       'Error',
-      '⚠️',
       'Ocurrió un error al actualizar tu contraseña.',
       'Por favor intenta nuevamente.',
       'error'

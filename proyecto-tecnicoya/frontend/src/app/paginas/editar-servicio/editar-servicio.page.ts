@@ -83,7 +83,7 @@ import { NgFor, NgIf } from '@angular/common';
           <!-- Ubicación -->
           <ion-card>
             <ion-card-content>
-              <h3 class="seccion-titulo">Ubicación del servicio</h3>
+              <h3 style="color:white" class="seccion-titulo">Ubicación del servicio</h3>
               
               <ion-item>
                 <ion-label position="stacked">Dirección *</ion-label>
@@ -117,7 +117,7 @@ import { NgFor, NgIf } from '@angular/common';
 
               @if (coordenadas) {
                 <ion-note color="success" class="ubicacion-confirmada">
-                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  <ion-icon style="color:white" name="checkmark-circle-outline"></ion-icon>
                   Ubicación confirmada
                 </ion-note>
               }
@@ -127,7 +127,7 @@ import { NgFor, NgIf } from '@angular/common';
           <!-- Urgencia -->
           <ion-card>
             <ion-card-content>
-              <h3 class="seccion-titulo">Urgencia</h3>
+              <h3 style="color:white" class="seccion-titulo">Urgencia</h3>
               <ion-item>
                 <ion-label position="stacked">Nivel de urgencia</ion-label>
                 <ion-select 

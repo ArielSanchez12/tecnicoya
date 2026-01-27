@@ -856,7 +856,7 @@ export class DetalleServicioPage implements OnInit, OnDestroy {
 
         // Mostrar confirmación de pago exitoso
         const alertExito = await this.alertCtrl.create({
-          header: '✅ ¡Pago Exitoso!',
+          header: '¡Pago Exitoso!',
           message: `Se han cargado $${montoTotal.toFixed(2)} a tu tarjeta terminada en ****${datosTarjeta.numeroTarjeta.slice(-4)}.\n\n${conGarantia ? '🛡️ Garantía de satisfacción activada' : ''}`,
           buttons: ['Continuar']
         });
