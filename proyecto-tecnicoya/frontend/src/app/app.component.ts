@@ -28,36 +28,28 @@ export class AppComponent implements OnInit {
     // Verificar autenticación al iniciar la app (restaurar sesión si existe token)
     this.restaurarSesion();
     
-    // Inicializar manejo de deep links solo en plataformas nativas
+    // Inicializar manejo de deep links y push notifications en plataformas nativas
     if (Capacitor.isNativePlatform()) {
       this.inicializarDeepLinks();
-      // Inicializar push notifications
+      // Inicializar push notifications con Firebase
       this.inicializarPushNotifications();
     }
   }
 
   /**
-   * Inicializa las push notifications para Android/iOS
+   * Inicializa las push notifications con Firebase
    */
   private async inicializarPushNotifications(): Promise<void> {
-    try {
-      console.log('🔔 Inicializando push notifications...');
-      // Pequeño delay para asegurar que la app esté lista
-      setTimeout(async () => {
-        try {
-          const permiso = await this.notificacionesServicio.solicitarPermisosPush();
-          if (permiso) {
-            console.log('✅ Push notifications habilitadas');
-          } else {
-            console.log('⚠️ Push notifications no habilitadas (puede ser por permisos)');
-          }
-        } catch (innerError) {
-          console.warn('⚠️ Error en push notifications (no crítico):', innerError);
-        }
-      }, 2000);
-    } catch (error) {
-      console.warn('⚠️ Push notifications no disponibles:', error);
-    }
+    // Esperar un poco para que la app esté lista
+    setTimeout(async () => {
+      try {
+        console.log('🔔 Configurando push notifications con Firebase...');
+        const resultado = await this.notificacionesServicio.solicitarPermisosPush();
+        console.log('📱 Push notifications:', resultado ? 'Habilitadas ✅' : 'No habilitadas ⚠️');
+      } catch (error) {
+        console.warn('⚠️ Error en push notifications:', error);
+      }
+    }, 1500);
   }
 
   private restaurarSesion(): void {

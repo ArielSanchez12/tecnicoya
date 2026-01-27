@@ -1,6 +1,6 @@
 /**
  * Script para generar iconos Android para TécnicoYa
- * Genera iconos con una llave de herramienta estilizada
+ * Genera iconos con una llave inglesa profesional
  */
 
 const fs = require('fs');
@@ -16,12 +16,12 @@ const androidSizes = {
   'mipmap-xxxhdpi': 192
 };
 
-// Color primario TécnicoYa
-const primaryColor = { r: 56, g: 128, b: 255 }; // #3880ff
-const whiteColor = { r: 255, g: 255, b: 255 };
-const darkColor = { r: 25, g: 50, b: 100 };
+// Colores
+const primaryBlue = { r: 56, g: 128, b: 255 };  // #3880ff
+const darkBlue = { r: 30, g: 80, b: 180 };      // Sombra
+const white = { r: 255, g: 255, b: 255 };
 
-// Crear un icono con diseño de herramienta/llave
+// Crear icono con llave inglesa profesional
 function createTecnicoYaIcon(size) {
   const width = size;
   const height = size;
@@ -30,39 +30,35 @@ function createTecnicoYaIcon(size) {
 
   const centerX = width / 2;
   const centerY = height / 2;
-  const bgRadius = size * 0.45;
-  const innerRadius = size * 0.35;
+  const radius = size * 0.42;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const idx = (y * width + x) * channels;
       const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
 
-      // Fondo circular azul
-      if (dist <= bgRadius) {
-        // Gradiente sutil
-        const gradientFactor = 1 - (dist / bgRadius) * 0.3;
+      // Fondo circular azul con gradiente
+      if (dist <= radius) {
+        const gradientFactor = 1 - (dist / radius) * 0.25;
         
-        // Dibujar una "T" estilizada (de TécnicoYa) o llave
+        // Posición relativa normalizada
         const relX = (x - centerX) / size;
         const relY = (y - centerY) / size;
         
-        // Forma de llave inglesa simplificada
-        const isWrenchHead = dist < size * 0.15;
-        const isWrenchHandle = Math.abs(relX) < 0.06 && relY > 0 && relY < 0.3;
-        const isWrenchTop = Math.abs(relY + 0.05) < 0.08 && Math.abs(relX) < 0.18;
+        // Dibujar llave inglesa profesional (forma de T con círculo)
+        const isWrench = dibujarLlaveInglesa(relX, relY, size);
         
-        if (isWrenchHead || isWrenchHandle || isWrenchTop) {
+        if (isWrench) {
           // Llave en blanco
           rawData[idx] = 255;
           rawData[idx + 1] = 255;
           rawData[idx + 2] = 255;
           rawData[idx + 3] = 255;
         } else {
-          // Fondo azul con gradiente
-          rawData[idx] = Math.round(primaryColor.r * gradientFactor);
-          rawData[idx + 1] = Math.round(primaryColor.g * gradientFactor);
-          rawData[idx + 2] = Math.round(primaryColor.b * gradientFactor);
+          // Fondo azul
+          rawData[idx] = Math.round(primaryBlue.r * gradientFactor);
+          rawData[idx + 1] = Math.round(primaryBlue.g * gradientFactor);
+          rawData[idx + 2] = Math.round(primaryBlue.b * gradientFactor);
           rawData[idx + 3] = 255;
         }
       } else {
@@ -78,7 +74,40 @@ function createTecnicoYaIcon(size) {
   return createPNGBuffer(width, height, rawData);
 }
 
-// Crear icono foreground (para adaptive icons)
+// Función para dibujar forma de llave inglesa
+function dibujarLlaveInglesa(relX, relY, size) {
+  // Rotar 45 grados para que la llave esté diagonal
+  const angle = -Math.PI / 4;
+  const rotX = relX * Math.cos(angle) - relY * Math.sin(angle);
+  const rotY = relX * Math.sin(angle) + relY * Math.cos(angle);
+  
+  // Cabeza de la llave (hexágono/círculo con muesca)
+  const headCenterY = -0.12;
+  const headRadius = 0.11;
+  const headDist = Math.sqrt(rotX * rotX + Math.pow(rotY - headCenterY, 2));
+  
+  // Muesca en la cabeza (para que parezca llave de tuercas)
+  const notchWidth = 0.04;
+  const isNotch = Math.abs(rotX) < notchWidth && rotY < headCenterY;
+  
+  const isHead = headDist < headRadius && !isNotch;
+  
+  // Mango de la llave (rectángulo)
+  const handleWidth = 0.055;
+  const handleStart = headCenterY + headRadius * 0.5;
+  const handleEnd = 0.28;
+  const isHandle = Math.abs(rotX) < handleWidth && rotY > handleStart && rotY < handleEnd;
+  
+  // Punta del mango (más ancha)
+  const tipWidth = 0.08;
+  const tipStart = 0.22;
+  const tipEnd = 0.30;
+  const isTip = Math.abs(rotX) < tipWidth && rotY > tipStart && rotY < tipEnd;
+  
+  return isHead || isHandle || isTip;
+}
+
+// Crear icono foreground para adaptive icons
 function createForegroundIcon(size) {
   const width = size;
   const height = size;
@@ -94,21 +123,15 @@ function createForegroundIcon(size) {
       
       const relX = (x - centerX) / size;
       const relY = (y - centerY) / size;
-      const dist = Math.sqrt(relX * relX + relY * relY);
       
-      // Llave inglesa más grande para foreground
-      const isWrenchHead = dist < 0.12;
-      const isWrenchHandle = Math.abs(relX) < 0.05 && relY > -0.05 && relY < 0.25;
-      const isWrenchTop = Math.abs(relY + 0.02) < 0.07 && Math.abs(relX) < 0.15;
+      const isWrench = dibujarLlaveInglesa(relX, relY, size);
       
-      if (isWrenchHead || isWrenchHandle || isWrenchTop) {
-        // Llave en blanco
+      if (isWrench) {
         rawData[idx] = 255;
         rawData[idx + 1] = 255;
         rawData[idx + 2] = 255;
         rawData[idx + 3] = 255;
       } else {
-        // Transparente
         rawData[idx] = 0;
         rawData[idx + 1] = 0;
         rawData[idx + 2] = 0;
@@ -187,7 +210,8 @@ function crc32(data) {
 // Generar iconos
 const androidDir = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res');
 
-console.log('🔧 Generando iconos Android para TécnicoYa...\n');
+console.log('🔧 Generando iconos Android para TécnicoYa...');
+console.log('   Diseño: Llave inglesa diagonal sobre fondo azul\n');
 
 Object.entries(androidSizes).forEach(([folder, size]) => {
   const outputDir = path.join(androidDir, folder);
@@ -205,12 +229,13 @@ Object.entries(androidSizes).forEach(([folder, size]) => {
   fs.writeFileSync(path.join(outputDir, 'ic_launcher_round.png'), iconBuffer);
   console.log(`✅ ${folder}/ic_launcher_round.png (${size}x${size})`);
 
-  // Foreground para adaptive icons (tamaño más grande)
+  // Foreground para adaptive icons
   const fgSize = Math.round(size * 1.5);
   const fgBuffer = createForegroundIcon(fgSize);
   fs.writeFileSync(path.join(outputDir, 'ic_launcher_foreground.png'), fgBuffer);
   console.log(`✅ ${folder}/ic_launcher_foreground.png (${fgSize}x${fgSize})`);
 });
 
-console.log('\n🎉 ¡Todos los iconos Android han sido generados!');
-console.log('📱 Los iconos están en: android/app/src/main/res/mipmap-*/');
+console.log('\n🎉 ¡Iconos generados con éxito!');
+console.log('📱 Ubicación: android/app/src/main/res/mipmap-*/');
+console.log('🔧 Diseño: Llave inglesa blanca sobre fondo azul #3880FF');

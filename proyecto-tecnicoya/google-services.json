@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "175757792202",
+    "project_id": "tecnicoya-23fd6",
+    "storage_bucket": "tecnicoya-23fd6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175757792202:android:02f4be425fb1f3f91f3533",
+        "android_client_info": {
+          "package_name": "com.tecnicoya.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnTqGLM6ZdzyjaCyUJ-3VC2Bm1JMc1Yvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
