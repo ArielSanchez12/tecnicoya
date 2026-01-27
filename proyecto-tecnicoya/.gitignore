@@ -8,6 +8,10 @@ node_modules/
 .env.production
 */.env
 
+# Firebase/Google Services (contiene API keys)
+google-services.json
+**/google-services.json
+
 # Archivos de build
 dist/
 build/
