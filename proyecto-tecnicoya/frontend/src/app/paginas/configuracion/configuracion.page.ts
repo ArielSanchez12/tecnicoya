@@ -63,10 +63,10 @@ import { FormsModule } from '@angular/forms';
             </ion-item>
             <ion-item>
               <ion-label>
-                <h3>Promociones</h3>
-                <p>Recibe ofertas y descuentos</p>
+                <h3>{{ esTecnico ? 'Nuevos trabajos' : 'Promociones' }}</h3>
+                <p>{{ esTecnico ? 'Notificar nuevos trabajos disponibles' : 'Recibe ofertas y descuentos' }}</p>
               </ion-label>
-              <ion-toggle [(ngModel)]="config.notifPromociones" (ionChange)="guardarConfig()"></ion-toggle>
+              <ion-toggle [(ngModel)]="config.notifNuevosTrabajos" (ionChange)="guardarConfig()"></ion-toggle>
             </ion-item>
           </ion-list>
         </ion-card-content>
@@ -209,11 +209,15 @@ export class ConfiguracionPage implements OnInit {
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
 
+  get esTecnico(): boolean {
+    return this.authServicio.esTecnico();
+  }
+
   config = {
     notificacionesPush: true,
     notifMensajes: true,
     notifCotizaciones: true,
-    notifPromociones: false,
+    notifNuevosTrabajos: true,
     tema: 'system',
     idioma: 'es',
     compartirUbicacion: true,

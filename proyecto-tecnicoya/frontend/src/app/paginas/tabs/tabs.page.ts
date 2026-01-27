@@ -20,12 +20,10 @@ import { AuthServicio } from '../../servicios/auth.servicio';
           <ion-label>Inicio</ion-label>
         </ion-tab-button>
 
-        @if (esCliente) {
-          <ion-tab-button tab="buscar">
-            <ion-icon name="search-outline"></ion-icon>
-            <ion-label>Buscar</ion-label>
-          </ion-tab-button>
-        }
+        <ion-tab-button tab="buscar">
+          <ion-icon name="search-outline"></ion-icon>
+          <ion-label>Buscar</ion-label>
+        </ion-tab-button>
 
         <ion-tab-button tab="perfil">
           <ion-icon name="person-outline"></ion-icon>
@@ -52,7 +50,6 @@ import { AuthServicio } from '../../servicios/auth.servicio';
 })
 export class TabsPage implements OnInit {
   private authServicio = inject(AuthServicio);
-  esCliente = false;
 
   constructor() {
     addIcons({
@@ -63,6 +60,6 @@ export class TabsPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.esCliente = this.authServicio.esCliente();
+    // Tab Buscar ahora visible para todos los usuarios
   }
 }

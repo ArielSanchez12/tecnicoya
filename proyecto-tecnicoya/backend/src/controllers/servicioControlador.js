@@ -442,7 +442,10 @@ const obtenerServiciosDisponibles = async (req, res) => {
     // Filtrar por urgencia si se especifica
     if (urgencia === 'emergencia') {
       filtroBase.urgencia = 'emergencia';
+      console.log('🚨 Filtrando servicios urgentes (emergencia)');
     }
+
+    console.log('📋 Filtro base:', JSON.stringify(filtroBase));
 
     // Filtrar por especialidades del técnico si las tiene
     if (req.usuario?.datosTecnico?.especialidades?.length > 0) {

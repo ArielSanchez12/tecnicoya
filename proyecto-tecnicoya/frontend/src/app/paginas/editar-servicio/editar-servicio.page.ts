@@ -116,7 +116,7 @@ import { NgFor, NgIf } from '@angular/common';
               </ion-button>
 
               @if (coordenadas) {
-                <ion-note color="success" class="ubicacion-confirmada">
+                <ion-note color="success" class="ubicacion-confirmada" style="color: white">
                   <ion-icon style="color:white" name="checkmark-circle-outline"></ion-icon>
                   Ubicación confirmada
                 </ion-note>

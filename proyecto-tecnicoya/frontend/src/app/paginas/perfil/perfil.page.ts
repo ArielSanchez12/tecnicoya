@@ -18,6 +18,7 @@ import {
 import { AuthServicio } from '../../servicios/auth.servicio';
 import { UsuariosServicio } from '../../servicios/usuarios.servicio';
 import { FidelizacionServicio } from '../../servicios/fidelizacion.servicio';
+import { TrabajosServicio } from '../../servicios/trabajos.servicio';
 import { Usuario, NIVELES_LEALTAD, TIPOS_SERVICIO } from '../../modelos';
 import { NgFor, NgIf, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -416,8 +417,11 @@ export class PerfilPage implements OnInit {
   private authServicio = inject(AuthServicio);
   private usuariosServicio = inject(UsuariosServicio);
   private fidelizacionServicio = inject(FidelizacionServicio);
+  private trabajosServicio = inject(TrabajosServicio);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
+  
+  tieneTrabajoActivo = false;
 
   usuario: Usuario | null = null;
   fidelizacion: any = null;
@@ -456,6 +460,8 @@ export class PerfilPage implements OnInit {
         console.error('Error parsing usuario:', e);
       }
     }
+    // Verificar trabajos activos cada vez que se muestra la página
+    this.verificarTrabajosActivos();
   }
 
   get esTecnico(): boolean {
@@ -479,6 +485,24 @@ export class PerfilPage implements OnInit {
         }
       }
     });
+    
+    // Verificar si tiene trabajos activos
+    this.verificarTrabajosActivos();
+  }
+  
+  private verificarTrabajosActivos(): void {
+    if (!this.esTecnico) return;
+    
+    this.trabajosServicio.obtenerMisTrabajos({ estado: 'en_progreso' }).subscribe({
+      next: (res) => {
+        const trabajosEnProgreso = res.datos || [];
+        this.tieneTrabajoActivo = trabajosEnProgreso.length > 0;
+        console.log('🔧 Trabajos activos:', trabajosEnProgreso.length, 'tiene activo:', this.tieneTrabajoActivo);
+      },
+      error: () => {
+        this.tieneTrabajoActivo = false;
+      }
+    });
   }
 
   async refrescar(event: any): Promise<void> {
@@ -495,15 +519,29 @@ export class PerfilPage implements OnInit {
     this.router.navigate(['/editar-perfil']);
   }
 
-  toggleDisponibilidad(disponible: boolean): void {
+  async toggleDisponibilidad(disponible: boolean): Promise<void> {
     if (this.actualizando) return;
+    
+    // Si intenta desactivar, verificar si tiene trabajos activos
+    if (!disponible && this.tieneTrabajoActivo) {
+      const alert = await this.alertCtrl.create({
+        header: 'No puedes desactivarte',
+        message: 'Tienes trabajos activos en progreso. Finaliza todos tus trabajos antes de desactivar tu disponibilidad.',
+        buttons: ['Entendido']
+      });
+      await alert.present();
+      // Revertir el toggle
+      this.disponibleAhora = true;
+      return;
+    }
+    
     this.actualizando = true;
 
     this.usuariosServicio.actualizarPerfil({
       datosTecnico: { disponibleAhora: disponible }
     }).subscribe({
       next: (res) => {
-        this.mostrarToast(disponible ? 'Ahora estás disponible' : 'Ya no estás disponible');
+        this.mostrarToast(disponible ? 'Ahora estás disponible para nuevos trabajos' : 'Ya no recibirás nuevos trabajos');
         if (this.usuario?.datosTecnico) {
           this.usuario.datosTecnico.disponibleAhora = disponible;
         }

@@ -2,6 +2,7 @@ import { Component, OnInit, inject, NgZone } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { AuthServicio } from './servicios/auth.servicio';
+import { NotificacionesServicio } from './servicios/notificaciones.servicio';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 
@@ -17,6 +18,7 @@ import { Capacitor } from '@capacitor/core';
 })
 export class AppComponent implements OnInit {
   private authServicio = inject(AuthServicio);
+  private notificacionesServicio = inject(NotificacionesServicio);
   private router = inject(Router);
   private zone = inject(NgZone);
 
@@ -29,6 +31,32 @@ export class AppComponent implements OnInit {
     // Inicializar manejo de deep links solo en plataformas nativas
     if (Capacitor.isNativePlatform()) {
       this.inicializarDeepLinks();
+      // Inicializar push notifications
+      this.inicializarPushNotifications();
+    }
+  }
+
+  /**
+   * Inicializa las push notifications para Android/iOS
+   */
+  private async inicializarPushNotifications(): Promise<void> {
+    try {
+      console.log('🔔 Inicializando push notifications...');
+      // Pequeño delay para asegurar que la app esté lista
+      setTimeout(async () => {
+        try {
+          const permiso = await this.notificacionesServicio.solicitarPermisosPush();
+          if (permiso) {
+            console.log('✅ Push notifications habilitadas');
+          } else {
+            console.log('⚠️ Push notifications no habilitadas (puede ser por permisos)');
+          }
+        } catch (innerError) {
+          console.warn('⚠️ Error en push notifications (no crítico):', innerError);
+        }
+      }, 2000);
+    } catch (error) {
+      console.warn('⚠️ Push notifications no disponibles:', error);
     }
   }
 

@@ -9,6 +9,8 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { RespuestaApi } from '../modelos';
+import { Capacitor } from '@capacitor/core';
+import { PushNotifications, Token, PushNotificationSchema, ActionPerformed } from '@capacitor/push-notifications';
 
 export interface Notificacion {
   _id: string;
@@ -113,10 +115,106 @@ export class NotificacionesServicio {
    * Solicitar permiso de notificaciones push
    */
   async solicitarPermisosPush(): Promise<boolean> {
-    if ('Notification' in window) {
-      const permiso = await Notification.requestPermission();
-      return permiso === 'granted';
+    try {
+      // Si es plataforma nativa (Android/iOS), usar Capacitor Push Notifications
+      if (Capacitor.isNativePlatform()) {
+        return await this.configurarPushNativo();
+      }
+      
+      // En web, usar Notification API
+      if ('Notification' in window) {
+        const permiso = await Notification.requestPermission();
+        return permiso === 'granted';
+      }
+    } catch (error) {
+      console.warn('⚠️ Error en permisos push (no crítico):', error);
     }
     return false;
+  }
+
+  /**
+   * Configurar Push Notifications para Android/iOS
+   * NOTA: Requiere Firebase configurado para funcionar completamente
+   */
+  private async configurarPushNativo(): Promise<boolean> {
+    try {
+      // Verificar permisos actuales
+      let permStatus = await PushNotifications.checkPermissions();
+      console.log('🔔 Estado permisos push:', permStatus.receive);
+      
+      if (permStatus.receive === 'prompt') {
+        // Solicitar permisos
+        permStatus = await PushNotifications.requestPermissions();
+      }
+      
+      if (permStatus.receive !== 'granted') {
+        console.log('❌ Permisos de push denegados');
+        return false;
+      }
+      
+      // Intentar registrar - puede fallar si Firebase no está configurado
+      try {
+        await PushNotifications.register();
+        // Escuchar eventos de push
+        this.configurarListenersPush();
+        console.log('✅ Push notifications configuradas correctamente');
+      } catch (registerError) {
+        console.warn('⚠️ Push register falló (Firebase no configurado?):', registerError);
+        // No es un error crítico, la app sigue funcionando
+      }
+      
+      return true;
+    } catch (error) {
+      console.warn('⚠️ Error configurando push notifications:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Configurar listeners para eventos de push notifications
+   */
+  private configurarListenersPush(): void {
+    // Cuando se obtiene el token de registro
+    PushNotifications.addListener('registration', (token: Token) => {
+      console.log('🔑 Token de push recibido:', token.value);
+      // Guardar el token en el backend para enviar notificaciones
+      this.guardarTokenPush(token.value);
+    });
+
+    // Error en el registro
+    PushNotifications.addListener('registrationError', (error: any) => {
+      console.error('❌ Error en registro de push:', error);
+    });
+
+    // Notificación recibida mientras la app está en primer plano
+    PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+      console.log('📨 Notificación recibida:', notification);
+      // Agregar a la lista de notificaciones
+      const notif: Notificacion = {
+        _id: notification.id || Date.now().toString(),
+        tipo: 'sistema',
+        titulo: notification.title || 'Nueva notificación',
+        mensaje: notification.body || '',
+        leida: false,
+        fecha: new Date()
+      };
+      this.agregarNotificacion(notif);
+    });
+
+    // Usuario tocó la notificación
+    PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
+      console.log('👆 Acción en notificación:', action);
+      // Aquí se puede navegar a una página específica según la data de la notificación
+    });
+  }
+
+  /**
+   * Guardar el token de push en el backend
+   */
+  private guardarTokenPush(token: string): void {
+    this.http.post(`${this.apiUrl}/token-push`, { token }).subscribe({
+      next: () => console.log('✅ Token push guardado en backend'),
+      error: (err) => console.error('❌ Error guardando token push:', err)
+    });
   }
 }
