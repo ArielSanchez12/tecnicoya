@@ -165,6 +165,17 @@ import { FormsModule } from '@angular/forms';
               <ion-label>Cercanos</ion-label>
             </ion-segment-button>
           </ion-segment>
+
+          <!-- Mensaje informativo sobre servicios urgentes -->
+          @if (filtroServicios === 'urgentes' && !tieneEmergencias24h) {
+            <div class="aviso-urgentes">
+              <ion-icon name="flash-outline"></ion-icon>
+              <div class="aviso-texto">
+                <strong>Servicios urgentes</strong>
+                <p>Para recibir notificaciones de estos servicios, activa "Disponible 24/7" en tu perfil.</p>
+              </div>
+            </div>
+          }
         </div>
 
         <!-- Lista de servicios -->
@@ -237,6 +248,42 @@ import { FormsModule } from '@angular/forms';
       ion-select {
         color: var(--ion-color-dark);
         --placeholder-color: var(--ion-color-medium);
+      }
+    }
+
+    .aviso-urgentes {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      border-radius: 12px;
+      border-left: 4px solid #ff9800;
+
+      > ion-icon {
+        font-size: 24px;
+        color: #f57c00;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .aviso-texto {
+        flex: 1;
+
+        strong {
+          display: block;
+          color: #e65100;
+          font-size: 14px;
+          margin-bottom: 4px;
+        }
+
+        p {
+          margin: 0;
+          color: #bf360c;
+          font-size: 13px;
+          line-height: 1.4;
+        }
       }
     }
 
@@ -457,6 +504,14 @@ export class BuscarPage implements OnInit {
   }
 
   get esTecnico(): boolean {
+    return this.authServicio.esTecnico();
+  }
+
+  get tieneEmergencias24h(): boolean {
+    const usuario = this.authServicio.obtenerUsuario();
+    return usuario?.datosTecnico?.disponibleEmergencias === true || 
+           usuario?.datosTecnico?.emergencia24h === true;
+  }
     return this.authServicio.esTecnico();
   }
 

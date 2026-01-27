@@ -413,7 +413,7 @@ const obtenerMisServicios = async (req, res) => {
  */
 const obtenerServiciosDisponibles = async (req, res) => {
   try {
-    const { latitud, longitud, radio, tipo, limite } = req.query;
+    const { latitud, longitud, radio, tipo, limite, urgencia } = req.query;
 
     if (!latitud || !longitud) {
       return res.status(400).json({
@@ -438,6 +438,11 @@ const obtenerServiciosDisponibles = async (req, res) => {
     const filtroBase = {
       estado: { $in: ['pendiente', 'cotizado'] }
     };
+
+    // Filtrar por urgencia si se especifica
+    if (urgencia === 'emergencia') {
+      filtroBase.urgencia = 'emergencia';
+    }
 
     // Filtrar por especialidades del técnico si las tiene
     if (req.usuario?.datosTecnico?.especialidades?.length > 0) {

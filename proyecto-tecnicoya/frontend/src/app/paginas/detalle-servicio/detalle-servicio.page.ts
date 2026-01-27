@@ -863,10 +863,22 @@ export class DetalleServicioPage implements OnInit, OnDestroy {
         await alertExito.present();
         await alertExito.onDidDismiss();
 
+        // Actualizar estado local inmediatamente para que la vista cambie
+        if (this.servicio) {
+          this.servicio.estado = 'asignado';
+        }
+        // Limpiar cotizaciones ya que el servicio fue asignado
+        this.cotizaciones = [];
+        // Guardar el trabajo asociado
+        if (res.datos?.trabajo) {
+          this.trabajoAsociado = res.datos.trabajo;
+        }
+
         // Navegar al trabajo creado
         if (res.datos?.trabajo?._id) {
-          this.router.navigate(['/trabajo', res.datos.trabajo._id]);
+          this.router.navigate(['/trabajo', res.datos.trabajo._id], { replaceUrl: true });
         } else {
+          // Recargar para obtener el estado actualizado del servidor
           this.cargarServicio(this.servicio!._id);
         }
       },

@@ -21,6 +21,7 @@ export class SocketServicio {
   // Subjects para eventos
   private conectadoSubject = new BehaviorSubject<boolean>(false);
   private mensajeSubject = new Subject<Mensaje>();
+  private mensajeConfirmadoSubject = new Subject<any>();
   private escribiendoSubject = new Subject<{ usuarioId: string; escribiendo: boolean }>();
   private notificacionSubject = new Subject<Notificacion>();
   private ubicacionTecnicoSubject = new Subject<{ tecnicoId: string; ubicacion: Coordenadas }>();
@@ -29,6 +30,7 @@ export class SocketServicio {
   // Observables públicos
   public conectado$ = this.conectadoSubject.asObservable();
   public mensaje$ = this.mensajeSubject.asObservable();
+  public mensajeConfirmado$ = this.mensajeConfirmadoSubject.asObservable();
   public escribiendo$ = this.escribiendoSubject.asObservable();
   public notificacion$ = this.notificacionSubject.asObservable();
   public ubicacionTecnico$ = this.ubicacionTecnicoSubject.asObservable();
@@ -39,6 +41,13 @@ export class SocketServicio {
    */
   escucharMensajes(): Observable<Mensaje> {
     return this.mensaje$;
+  }
+
+  /**
+   * Escuchar confirmación de mensaje enviado
+   */
+  escucharConfirmacionMensaje(): Observable<any> {
+    return this.mensajeConfirmado$;
   }
 
   /**
@@ -230,6 +239,11 @@ export class SocketServicio {
         createdAt: mensaje.fechaEnvio || mensaje.createdAt || new Date().toISOString()
       };
       this.mensajeSubject.next(mensajeNormalizado);
+    });
+
+    // Confirmación de mensaje guardado (para actualizar ID temporal)
+    this.socket.on('mensaje_confirmado', (confirmacion: any) => {
+      this.mensajeConfirmadoSubject.next(confirmacion);
     });
 
     // Usuario escribiendo

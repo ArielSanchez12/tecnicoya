@@ -378,35 +378,50 @@ export class ChatPage implements OnInit, OnDestroy {
     const usuario = this.authServicio.obtenerUsuarioActual();
     const miId = usuario?._id;
 
-    // Escuchar mensajes entrantes
+    // Escuchar mensajes entrantes de otros usuarios
     const msgSub = this.socketServicio.escucharMensajes().subscribe(mensaje => {
-      // Verificar si el mensaje ya existe (evitar duplicados)
-      const yaExiste = this.mensajes.some(m =>
-        m._id === mensaje._id ||
-        (m._id?.toString().startsWith('temp_') && m.contenido === mensaje.contenido && m.emisor === mensaje.emisor)
-      );
+      // Normalizar el emisor
+      const emisorId = mensaje.emisor || mensaje.idEmisor;
 
-      if (yaExiste) {
-        // Si es mi mensaje confirmado por el servidor, actualizar el temporal
-        if (mensaje.emisor === miId) {
-          const tempIndex = this.mensajes.findIndex(m =>
-            m._id?.toString().startsWith('temp_') && m.contenido === mensaje.contenido
-          );
-          if (tempIndex !== -1) {
-            this.mensajes[tempIndex] = mensaje;
-          }
-        }
+      // Ignorar mensajes propios (ya se mostraron como temporales)
+      if (emisorId === miId) {
         return;
       }
 
-      // Solo agregar si es del receptor
-      if (mensaje.emisor === this.receptorId) {
-        this.mensajes.push(mensaje);
-        this.scrollToBottom();
-        this.escribiendo = false;
+      // Verificar si el mensaje ya existe
+      const yaExiste = this.mensajes.some(m => m._id === mensaje._id);
+      if (yaExiste) {
+        return;
       }
+
+      // Agregar mensaje del receptor
+      const mensajeNormalizado: Mensaje = {
+        _id: mensaje._id,
+        emisor: emisorId,
+        receptor: mensaje.receptor || miId,
+        contenido: mensaje.contenido,
+        tipo: 'texto',
+        leido: false,
+        createdAt: mensaje.createdAt || mensaje.fechaEnvio || new Date().toISOString()
+      };
+
+      this.mensajes.push(mensajeNormalizado);
+      this.scrollToBottom();
+      this.escribiendo = false;
     });
     this.subscriptions.push(msgSub);
+
+    // Escuchar confirmación de mensaje enviado (para actualizar ID temporal)
+    const confirmSub = this.socketServicio.escucharConfirmacionMensaje().subscribe(confirmacion => {
+      // Buscar mensaje temporal y actualizar su ID
+      const tempIndex = this.mensajes.findIndex(m =>
+        m._id?.toString().startsWith('temp_') && m.contenido === confirmacion.contenido
+      );
+      if (tempIndex !== -1) {
+        this.mensajes[tempIndex]._id = confirmacion._id;
+      }
+    });
+    this.subscriptions.push(confirmSub);
 
     // Escuchar cuando el otro usuario está escribiendo
     const escribiendoSub = this.socketServicio.escucharEscribiendo().subscribe(data => {

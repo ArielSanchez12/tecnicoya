@@ -48,16 +48,6 @@ interface CategoriaAyuda {
 
     <ion-content>
       @if (!busqueda) {
-        <!-- Categorías -->
-        <div class="categorias-grid">
-          @for (cat of categorias; track cat.id) {
-            <div class="categoria-card" (click)="seleccionarCategoria(cat.id)">
-              <ion-icon [name]="cat.icono"></ion-icon>
-              <span>{{ cat.nombre }}</span>
-            </div>
-          }
-        </div>
-
         <!-- Preguntas frecuentes -->
         <div class="seccion">
           <h2>Preguntas frecuentes</h2>
@@ -127,140 +117,9 @@ interface CategoriaAyuda {
           <p class="horario">Horario de atención: Lun - Vie 8:00 - 20:00</p>
         </ion-card-content>
       </ion-card>
-
-      <!-- Guías rápidas -->
-      <div class="seccion">
-        <h2>Guías rápidas</h2>
-        <ion-accordion-group class="guias-accordion">
-          <ion-accordion>
-            <ion-item slot="header">
-              <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>
-                <h3>Cómo solicitar un servicio</h3>
-                <p>Aprende a crear tu primera solicitud</p>
-              </ion-label>
-            </ion-item>
-            <div class="ion-padding guia-contenido" slot="content">
-              <p><strong>Paso 1:</strong> Ve a la pantalla de inicio y toca el botón "Nuevo servicio" o el ícono "+".</p>
-              <p><strong>Paso 2:</strong> Selecciona el tipo de servicio que necesitas (plomería, electricidad, etc.).</p>
-              <p><strong>Paso 3:</strong> Describe el problema con el mayor detalle posible.</p>
-              <p><strong>Paso 4:</strong> Agrega fotos del problema para que los técnicos puedan evaluar mejor.</p>
-              <p><strong>Paso 5:</strong> Confirma tu ubicación donde se realizará el servicio.</p>
-              <p><strong>Paso 6:</strong> Elige si es una emergencia o puede esperar.</p>
-              <p><strong>Paso 7:</strong> ¡Listo! Los técnicos cercanos recibirán tu solicitud y podrán enviarte cotizaciones.</p>
-            </div>
-          </ion-accordion>
-          <ion-accordion>
-            <ion-item slot="header">
-              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>
-                <h3>Cómo elegir un técnico</h3>
-                <p>Tips para seleccionar el mejor profesional</p>
-              </ion-label>
-            </ion-item>
-            <div class="ion-padding guia-contenido" slot="content">
-              <p><strong>Revisa las calificaciones:</strong> Los técnicos con 4+ estrellas tienen buen historial de servicio.</p>
-              <p><strong>Verifica la insignia:</strong> Los técnicos con ✓ Verificado han pasado nuestro proceso de verificación.</p>
-              <p><strong>Compara cotizaciones:</strong> No siempre el más barato es la mejor opción, considera calidad y experiencia.</p>
-              <p><strong>Revisa trabajos completados:</strong> Un técnico con muchos trabajos tiene más experiencia.</p>
-              <p><strong>Comunícate antes:</strong> Usa el chat para aclarar dudas antes de aceptar.</p>
-            </div>
-          </ion-accordion>
-          <ion-accordion>
-            <ion-item slot="header">
-              <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>
-                <h3>Métodos de pago</h3>
-                <p>Conoce las opciones disponibles</p>
-              </ion-label>
-            </ion-item>
-            <div class="ion-padding guia-contenido" slot="content">
-              <p><strong>Efectivo:</strong> Paga directamente al técnico al finalizar el servicio.</p>
-              <p><strong>Tarjeta de crédito/débito:</strong> Visa, Mastercard, American Express son aceptadas.</p>
-              <p><strong>Mercado Pago:</strong> Paga de forma segura usando tu cuenta de Mercado Pago.</p>
-              <p><strong>Transferencia bancaria:</strong> Realiza una transferencia antes o después del servicio.</p>
-              <p><strong>Importante:</strong> El pago queda retenido hasta que apruebes el trabajo completado, garantizando tu satisfacción.</p>
-            </div>
-          </ion-accordion>
-          <ion-accordion>
-            <ion-item slot="header">
-              <ion-icon name="star-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>
-                <h3>Sistema de calificaciones</h3>
-                <p>Cómo funcionan las reseñas</p>
-              </ion-label>
-            </ion-item>
-            <div class="ion-padding guia-contenido" slot="content">
-              <p><strong>Calificación de 1 a 5 estrellas:</strong> Evalúa la calidad general del servicio.</p>
-              <p><strong>Aspectos específicos:</strong> Puntualidad, calidad del trabajo y precio justo.</p>
-              <p><strong>Comentarios:</strong> Describe tu experiencia para ayudar a otros usuarios.</p>
-              <p><strong>Fotos:</strong> Puedes agregar fotos del trabajo terminado.</p>
-              @if (esCliente) {
-                <p><strong>Gana puntos:</strong> Recibe +5 puntos de fidelización por cada reseña que dejes.</p>
-              }
-              <p><strong>Las reseñas son públicas:</strong> Ayudan a la comunidad a elegir mejores técnicos.</p>
-            </div>
-          </ion-accordion>
-          <ion-accordion>
-            <ion-item slot="header">
-              <ion-icon name="shield-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>
-                <h3>Seguridad y garantías</h3>
-                <p>Tu protección es nuestra prioridad</p>
-              </ion-label>
-            </ion-item>
-            <div class="ion-padding guia-contenido" slot="content">
-              <p><strong>Técnicos verificados:</strong> Validamos identidad y antecedentes de los profesionales.</p>
-              <p><strong>Pago seguro:</strong> El dinero se retiene hasta que apruebes el trabajo.</p>
-              <p><strong>Garantía de satisfacción:</strong> Si no estás conforme, mediamos para encontrar una solución.</p>
-              <p><strong>Sistema de disputas:</strong> Reporta problemas dentro de 48 horas para revisión.</p>
-              <p><strong>Chat integrado:</strong> Toda la comunicación queda registrada como respaldo.</p>
-              <p><strong>Soporte 24/7:</strong> Nuestro equipo está disponible para emergencias.</p>
-            </div>
-          </ion-accordion>
-        </ion-accordion-group>
-      </div>
     </ion-content>
   `,
   styles: [`
-    .categorias-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      padding: 16px;
-    }
-
-    .categoria-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 8px;
-      background: var(--ion-color-light);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.2s;
-
-      &:active {
-        transform: scale(0.95);
-      }
-
-      span {
-        color: var(--ion-color-primary);
-      }
-
-      ion-icon {
-        font-size: 28px;
-        color: var(--ion-color-primary);
-        margin-bottom: 8px;
-      }
-
-      span {
-        font-size: 12px;
-        text-align: center;
-        font-weight: 500;
-      }
-    }
-
     .seccion {
       padding: 16px;
 

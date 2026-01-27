@@ -105,10 +105,19 @@ const inicializarSocket = (servidorHttp) => {
 
           const nuevoMensaje = await Mensaje.create(datosMsg);
 
-          // Emitir mensaje a todos en la sala
-          io.to(salaTrabajo).emit('recibir_mensaje', {
+          // Emitir mensaje a otros en la sala (excluyendo al emisor para evitar duplicados)
+          socket.to(salaTrabajo).emit('recibir_mensaje', {
             _id: nuevoMensaje._id,
             idEmisor: socket.idUsuario,
+            emisor: socket.idUsuario,
+            contenido,
+            fechaEnvio: nuevoMensaje.fechaEnvio,
+            createdAt: nuevoMensaje.fechaEnvio
+          });
+
+          // Confirmar al emisor que el mensaje se guardó (para actualizar el ID temporal)
+          socket.emit('mensaje_confirmado', {
+            _id: nuevoMensaje._id,
             contenido,
             fechaEnvio: nuevoMensaje.fechaEnvio
           });
@@ -125,8 +134,8 @@ const inicializarSocket = (servidorHttp) => {
           const ids = [socket.idUsuario, idReceptor].sort();
           const salaDirecta = `chat_${ids[0]}_${ids[1]}`;
 
-          // Emitir mensaje a la sala directa
-          io.to(salaDirecta).emit('recibir_mensaje', {
+          // Emitir mensaje solo a otros en la sala (no al emisor)
+          socket.to(salaDirecta).emit('recibir_mensaje', {
             _id: nuevoMensaje._id,
             emisor: socket.idUsuario,
             receptor: idReceptor,
@@ -134,16 +143,27 @@ const inicializarSocket = (servidorHttp) => {
             createdAt: nuevoMensaje.fechaEnvio
           });
 
-          // También emitir directamente al receptor si está conectado
+          // Confirmar al emisor que el mensaje se guardó
+          socket.emit('mensaje_confirmado', {
+            _id: nuevoMensaje._id,
+            contenido,
+            createdAt: nuevoMensaje.fechaEnvio
+          });
+
+          // También notificar al receptor si no está en la sala
           const socketReceptor = usuariosConectados.get(idReceptor);
           if (socketReceptor) {
-            io.to(socketReceptor).emit('nuevo_mensaje', {
-              _id: nuevoMensaje._id,
-              emisor: socket.idUsuario,
-              receptor: idReceptor,
-              contenido,
-              createdAt: nuevoMensaje.fechaEnvio
-            });
+            // Verificar si el receptor ya está en la sala
+            const socketObj = io.sockets.sockets.get(socketReceptor);
+            if (socketObj && !socketObj.rooms.has(salaDirecta)) {
+              io.to(socketReceptor).emit('nuevo_mensaje', {
+                _id: nuevoMensaje._id,
+                emisor: socket.idUsuario,
+                receptor: idReceptor,
+                contenido,
+                createdAt: nuevoMensaje.fechaEnvio
+              });
+            }
           }
 
           console.log(`💬 Mensaje directo enviado de ${socket.idUsuario} a ${idReceptor}`);
