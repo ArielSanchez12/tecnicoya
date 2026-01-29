@@ -75,41 +75,13 @@ cd android
 ./gradlew assembleDebug
 ```
 
-El APK estará en: `android/app/build/outputs/apk/debug/app-debug.apk`
-
-### APK de Release (Firmado)
-
-1. Genera un keystore:
-```bash
-keytool -genkey -v -keystore tecnicoya-release.keystore -alias tecnicoya -keyalg RSA -keysize 2048 -validity 10000
-```
-
-2. Configura `android/app/build.gradle` con la información del keystore
-
-3. Genera el APK firmado:
-```bash
-cd android
-./gradlew assembleRelease
-```
-
 ## 👤 Credenciales de Prueba
 
-### Clientes
+### Cliente
 - Email: `cliente1@test.com` | Contraseña: `123456`
-- Email: `cliente2@test.com` | Contraseña: `123456`
 
-### Técnicos
+### Técnico
 - Email: `tecnico1@test.com` | Contraseña: `123456`
-- Email: `tecnico2@test.com` | Contraseña: `123456`
-
-## 📚 Módulos Funcionales
-
-1. ✅ Autenticación (registro/login con JWT)
-2. ✅ Perfiles (clientes y técnicos)
-3. ✅ Sistema de Cotizaciones
-4. ✅ Geolocalización con Mapas
-5. ✅ Flujo de Trabajo Completo
-6. ✅ Sistema de Valoraciones
 
 ## 🌟 Features Innovadoras
 
@@ -118,11 +90,3 @@ cd android
 3. **Programa de Fidelización** - Acumula puntos y obtén descuentos
 4. **Técnico Inmediato** - Encuentra técnico al instante estilo Uber
 5. **Chat en Tiempo Real** - Comunicación directa con Socket.io
-
-## 📄 Licencia
-
-Este proyecto es parte de un trabajo final académico.
-
-## 👨‍💻 Autor
-
-Estudiante de Desarrollo de Aplicaciones Móviles - 2025
